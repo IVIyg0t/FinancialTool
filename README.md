@@ -19,3 +19,10 @@ This will preserve the base skeleten project files so that later we can merge al
 
 Thanks,
 Taylor
+
+Uploading your project to GitHub:
+1.  Copy/Paste your project folder into the folder you created that will house the GitHub folders/files.
+2.  Go to the GitHub application, and you should see above history that there are "Uncommited changes".  You should click this, and a summary/description will drop down below, and the contents of the uncomitted changes will show in the right side of the screen.
+3.  Fill in the summery/description describing what you have done to the application (Please be as derscriptive as possible). Referencing where you've added stuff would be a good idea (Function names and so on).
+4.  Once you've filled in the information, click commmit to master.  Then click Sync on the top right corner.
+5.  Your files should now be uploaded to the GitHub repo.
