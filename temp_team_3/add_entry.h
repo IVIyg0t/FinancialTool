@@ -19,9 +19,12 @@ public:
 
 private slots:
     void on_buttonBox_accepted();
+    void on_cb_account_currentIndexChanged(const QString &arg1);
 
 private:
     Ui::Add_entry *ui;
+    QStringList Account;
+    QStringList Categories;
 };
 
 #endif // ADD_ENTRY_H

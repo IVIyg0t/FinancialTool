@@ -27,7 +27,7 @@ void MainWindow::on_actionAdd_Entry_triggered()
 {
     //Opens the add_entry.ui
     //User can't click the other window without hitting accept/cancel
-    Add_entry pop_up;
+    static Add_entry pop_up;
     pop_up.setModal(true);
     pop_up.exec();
 }
