@@ -8,9 +8,14 @@
 Add_entry::Add_entry(QWidget *parent) : QDialog(parent), ui(new Ui::Add_entry)
 {
     ui->setupUi(this);
-    this->Account = (QStringList()<< (QString)"Default" << (QString)"Add Account");
-    this->Categories = (QStringList()<< (QString)"Default" << (QString)"Add Category");
+    this->Account = (QStringList() << (QString)""<< (QString)"Default" << (QString)"Add Account");
+    this->Categories = (QStringList()<< (QString)"" << (QString)"Default" << (QString)"Add Category");
+    this->Transaction_types = (QStringList()<< (QString)"" << (QString)"Withdrawl" << (QString)"Deposit");
     ui->cb_account->addItems(this->Account);
+    ui->cb_category->addItems(this->Categories);
+    ui->cb_transaction->addItems(this->Transaction_types);
+
+    Required_fields.addButton((QString)"Ok",QMessageBox::AcceptRole);
 }
 
 Add_entry::~Add_entry()
@@ -18,7 +23,7 @@ Add_entry::~Add_entry()
     delete ui;
 }
 
-void Add_entry::on_buttonBox_accepted()
+void Add_entry::on_pushButton_pressed()
 {
     Input_data Users_data;
     //After hitting accept to adding a new entry all data is imported into a global structure
@@ -37,10 +42,36 @@ void Add_entry::on_buttonBox_accepted()
         ui->cb_account->insertItem((ui->cb_account->findText("Add Account")),ui->cb_account->currentText()); //replace the first argument with zero if you want it to prepend to the combobox
     }
 
-    ui->cb_account->setCurrentIndex(0); //resets the combo box to the first choice
+    //adds the new category name below the presets and above the add category item
+    if(!this->Categories.contains(ui->cb_category->currentText(), Qt::CaseInsensitive))
+    {
+        this->Categories += ui->cb_category->currentText();
+        ui->cb_category->insertItem((ui->cb_category->findText("Add Category")),ui->cb_category->currentText()); //replace the first argument with zero if you want it to prepend to the combobox
+    }
+
+    if(Users_data.Amount != 0.0 && Users_data.Account != NULL && (Users_data.Category != NULL) && (Users_data.Transaction_type != NULL))
+    {
+        ui->cb_account->setCurrentIndex(0); //resets the combo box to the first choice
+        ui->cb_category->setCurrentIndex(0); //resets the combo box to the first choice
+        ui->cb_transaction->setCurrentIndex(0); //resets the combo box to the first choice
+        close();
+    }
+    else
+    {
+        Required_fields.setText("ERROR");
+        Required_fields.show();
+    }
 
     //Should now call the function to display all the data in the correct fields/tabs
     //The function should recieve an Input_data struct
+}
+
+void Add_entry::on_pushButton_2_pressed()
+{
+    ui->cb_account->setCurrentIndex(0); //resets the combo box to the first choice
+    ui->cb_category->setCurrentIndex(0); //resets the combo box to the first choice
+    ui->cb_transaction->setCurrentIndex(0); //resets the combo box to the first choice
+    close();
 }
 
 void Add_entry::on_cb_account_currentIndexChanged(const QString &arg1)
@@ -52,4 +83,15 @@ void Add_entry::on_cb_account_currentIndexChanged(const QString &arg1)
     }
     else if (this->Account.contains(arg1, Qt::CaseInsensitive))
         ui->cb_account->setEditable(false);
+}
+
+void Add_entry::on_cb_category_currentIndexChanged(const QString &arg1)
+{
+    if(arg1 == QString("Add Category"))
+    {
+        ui->cb_category->setEditable(true);
+        ui->cb_category->clearEditText();
+    }
+    else if (this->Categories.contains(arg1, Qt::CaseInsensitive))
+        ui->cb_category->setEditable(false);
 }
