@@ -18,12 +18,13 @@ public:
     ~Add_entry();
 
 private slots:
-    void on_buttonBox_accepted();
+    //used to allow for user input in the category and account type
     void on_cb_account_currentIndexChanged(const QString &arg1);
-
-    void on_buttonBox_rejected();
-
     void on_cb_category_currentIndexChanged(const QString &arg1);
+
+    //used for accept/cancel
+    void on_pushButton_pressed();
+    void on_pushButton_2_pressed();
 
 private:
     Ui::Add_entry *ui;
