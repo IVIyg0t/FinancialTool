@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QDateTimeEdit>
+#include <QMessageBox>
 
 
 namespace Ui {
@@ -31,6 +32,8 @@ private:
     QStringList Account;
     QStringList Categories;
     QStringList Transaction_types;
+
+    QMessageBox Required_fields;
 };
 
 #endif // ADD_ENTRY_H
