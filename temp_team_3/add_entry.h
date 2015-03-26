@@ -21,10 +21,15 @@ private slots:
     void on_buttonBox_accepted();
     void on_cb_account_currentIndexChanged(const QString &arg1);
 
+    void on_buttonBox_rejected();
+
+    void on_cb_category_currentIndexChanged(const QString &arg1);
+
 private:
     Ui::Add_entry *ui;
     QStringList Account;
     QStringList Categories;
+    QStringList Transaction_types;
 };
 
 #endif // ADD_ENTRY_H
