@@ -2,6 +2,7 @@
 #include "mainwindow.h"
 #include "ui_add_entry.h"
 #include <QApplication>
+#include <QDebug>
 
 #include <QDebug>
 
@@ -16,6 +17,7 @@ Add_entry::Add_entry(QWidget *parent) : QDialog(parent), ui(new Ui::Add_entry)
     ui->cb_transaction->addItems(this->Transaction_types);
 
     Required_fields.addButton((QString)"Ok",QMessageBox::AcceptRole);
+    Required_fields.setWindowTitle("Error: Missing Required Fields");
 }
 
 Add_entry::~Add_entry()
@@ -35,6 +37,18 @@ void Add_entry::on_pushButton_pressed()
     Users_data.Time = ui->dte_time_date->time();
     Users_data.Date = ui->dte_time_date->date();
 
+    QStringList Missing_Fields;
+
+    //I tried to find a cooler way of doing this but it seems to to be the most effiecent after perusing through the QStringList functionalities
+    if(Users_data.Amount == 0.0)
+        Missing_Fields << "Amount";
+    if(Users_data.Account == NULL)
+        Missing_Fields << "Account";
+    if(Users_data.Category == NULL)
+        Missing_Fields <<"Category";
+    if(Users_data.Transaction_type == NULL)
+        Missing_Fields << "Transaction_type";
+
     //adds the new account name below the presets and above the add account item
     if(!this->Account.contains(ui->cb_account->currentText(), Qt::CaseInsensitive))
     {
@@ -49,7 +63,7 @@ void Add_entry::on_pushButton_pressed()
         ui->cb_category->insertItem((ui->cb_category->findText("Add Category")),ui->cb_category->currentText()); //replace the first argument with zero if you want it to prepend to the combobox
     }
 
-    if(Users_data.Amount != 0.0 && Users_data.Account != NULL && (Users_data.Category != NULL) && (Users_data.Transaction_type != NULL))
+    if(Users_data.Amount != 0.0 && !Missing_Fields.contains(NULL,Qt::CaseInsensitive))
     {
         ui->cb_account->setCurrentIndex(0); //resets the combo box to the first choice
         ui->cb_category->setCurrentIndex(0); //resets the combo box to the first choice
@@ -58,7 +72,7 @@ void Add_entry::on_pushButton_pressed()
     }
     else
     {
-        Required_fields.setText("ERROR");
+        Required_fields.setText("Please enter the following fields: "+Missing_Fields.join(',')+".");
         Required_fields.show();
     }
 
