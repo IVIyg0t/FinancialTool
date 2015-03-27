@@ -8,7 +8,7 @@ addTransaction::addTransaction(QWidget *parent) :
     ui->setupUi(this);
     this->Account = (QStringList() << (QString)"Default" << (QString) "Add Account");
     this->Categories = (QStringList() << (QString)"Default" << (QString)"Add Category");
-    this->Transaction_types = (QStringList() << (QString)"Default" << (QString)"Add Transaction Type");
+    this->Transaction_types = (QStringList() << (QString)"Deposit" << (QString)"Withdrawl");
     ui->cb_account->addItems(this->Account);
     ui->cb_category->addItems(this->Categories);
     ui->cb_transaction->addItems(this->Transaction_types);

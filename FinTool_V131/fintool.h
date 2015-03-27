@@ -2,7 +2,10 @@
 #define FINTOOL_H
 
 #include <QMainWindow>
+#include <QTableWidgetItem>
+#include <QDebug>
 #include "addtransaction.h"
+#include <QVariant>
 
 struct inputData {
     QString Information;
@@ -29,6 +32,10 @@ public:
 
 public slots:
     void on_actionadd_transaction_triggered();
+
+private slots:
+
+    void on_tableWidget_itemChanged(QTableWidgetItem *item);
 
 private:
     Ui::FinTool *ui;
