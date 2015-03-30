@@ -1,5 +1,6 @@
 #include "fintool.h"
 #include "ui_fintool.h"
+#include <QDebug>
 
 FinTool::FinTool(QWidget *parent) :
     QMainWindow(parent),
@@ -24,7 +25,7 @@ FinTool::FinTool(QWidget *parent) :
     //Create tabs for user (returning user)
     createTabAccounts(this->userName);
     populateTables(this->userName);
-    qDebug("In1");
+
 
 }
 
@@ -33,26 +34,39 @@ FinTool::~FinTool()
     delete ui;
 }
 
+//Function to populate tables after tabs have been populated
 void FinTool::populateTables(QString username){
-
+    // Directory variables
     QString workingDir = "users/"+username+"/";
     QDir dir(workingDir);
     QStringList accountList = dir.entryList(QDir::NoDotAndDotDot|QDir::AllEntries);
 
+    // For each item in accountList as "file" do the following
+    // loop will iterate through each file in the current users directory
     foreach(QString file, accountList){
 
+        // Exclude the "userAccount" file from the operations
         if(file != "userAccount"){
             qDebug(file.toLatin1());
+
             // Variables for reading from file
             QFile fp(workingDir+file);
             fp.open(QIODevice::ReadOnly);
             QTextStream in(&fp);
+
+            // Read the current 'file' until we reach the end
             while(!in.atEnd()){
+
+                // Read in the current line
                 QString Line = in.readLine();
                 QStringList transDeets;
                 int tabIndex = -1;
 
+                // Split the current line by ',' and place each element into a string list
                 transDeets.append(Line.split(','));
+
+                // Find the tab that matches the current file we're working on.
+                // I.E: if file is "BoA Checking" then the tab name is "BoA Checking"
                 for(int k = 0; k < ui->tabWidget->count(); k++){
                     if(file == ui->tabWidget->tabText(k)){
                         tabIndex = k;
@@ -60,18 +74,19 @@ void FinTool::populateTables(QString username){
                     }
                 }
 
+                // For each element in transDeets (Transaction Details) as "s" do the following
                 int j = 0;
                 foreach(QString s, transDeets){
                     qDebug(s.toLatin1());
-                    QWidget *page = ui->tabWidget->widget(tabIndex);
-                    QTableWidget *table = page->findChild<QTableWidget *>();
-                    if(j == 0)
+                    QWidget *page = ui->tabWidget->widget(tabIndex);  // Create a pointer to the widget inside the current tab
+                    QTableWidget *table = page->findChild<QTableWidget *>(); // create a QTableWidget pointer to the QTableWidget inside the page
+                    if(j == 0)   // If j == 0 then we need to insert a new row at the top for importing our transaction into
                         table->insertRow(0);
-                    table->setItem(0,j, new QTableWidgetItem(s));
+                    table->setItem(0,j, new QTableWidgetItem(s)); // Set the current item ("s") into the 0th row and the jth column
                     j++;
                 }
             }
-            fp.close(); //Outside of while()
+            fp.close(); //Outside of while() , Close the file.
         }
     }
 }
