@@ -78,15 +78,13 @@ void FinTool::populateTables(QString username){
                 int j = 0;
                 foreach(QString s, transDeets){
                     qDebug(s.toLatin1());
-                   // QWidget *page = ui->tabWidget->widget(tabIndex);  // Create a pointer to the widget inside the current tab
-                   // QTableWidget *table = page->findChild<QTableWidget *>(); // create a QTableWidget pointer to the QTableWidget inside the page
-                   QTableWidget *table = ui->tabWidget->widget(tabIndex)->findChild<QTableWidget *>();
-                   if(j == 0)   // If j == 0 then we need to insert a new row at the top for importing our transaction into
+                    QWidget *page = ui->tabWidget->widget(tabIndex);  // Create a pointer to the widget inside the current tab
+                    QTableWidget *table = page->findChild<QTableWidget *>(); // create a QTableWidget pointer to the QTableWidget inside the page
+                    if(j == 0)   // If j == 0 then we need to insert a new row at the top for importing our transaction into
                         table->insertRow(0);
                     table->setItem(0,j, new QTableWidgetItem(s)); // Set the current item ("s") into the 0th row and the jth column
                     j++;
                 }
-                j = 0;
             }
             fp.close(); //Outside of while() , Close the file.
         }
@@ -104,9 +102,7 @@ void FinTool::createTabAccounts(QString username) {
                 ui->tabWidget->setTabText(0,file);
             else{
                 //QWidget *newtab = new QWidget(ui->tabWidget);
-
                 QTableWidget *newTable = new QTableWidget(ui->tableWidget);
-
                 newTable->setColumnCount(7);
                 newTable->setRowCount(1);
                 //Set names of columns
@@ -118,15 +114,7 @@ void FinTool::createTabAccounts(QString username) {
                 newTable->setHorizontalHeaderItem(5, new QTableWidgetItem("Info"));
                 newTable->setHorizontalHeaderItem(6, new QTableWidgetItem("Balance"));
 
-
-                ui->tabWidget->addTab(new QWidget(),file);
-                QWidget *wgt = ui->tabWidget->widget(iter-1);
-                QGridLayout *grid = new QGridLayout;
-                grid->addWidget(newTable);
-                wgt->setLayout(grid);
-
-
-                //ui->tabWidget->addTab(wgt,file);
+                ui->tabWidget->addTab(newTable,file);
 
                 // QWidget *newTable = new QWidget(ui->tableWidget);
                 ui->tabWidget->setCurrentIndex(iter-1);
