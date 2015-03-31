@@ -251,7 +251,7 @@ void FinTool::writeTransaction(inputData transaction, QString username){
     if(transaction.Information != "")
         out << transaction.Information << ",";
     else
-        out << "N/A\n";
+        out << "N/A,";
 
     if(transaction.transType != "")
         out << transaction.transType << ",";
