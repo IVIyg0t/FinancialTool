@@ -9,6 +9,8 @@ FinTool::FinTool(QWidget *parent) :
     ui->setupUi(this);
     userDialog login;
 
+    this->balance = 0.0;
+
     //Connect Add Transaction menu item to transaction dialog
     connect(ui->actionTransaction,SIGNAL(triggered()), this, SLOT(on_action_transaction_triggered()));
     connect(ui->actionAccount, SIGNAL(triggered()), this, SLOT(on_action_account_triggered()));
@@ -178,7 +180,7 @@ void FinTool::on_action_transaction_triggered(){
     if(transaction.success == true){
 
         QTableWidget *currentTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
-
+        calculate_current_balance(transaction.Amount, transaction.transType);
         currentTable->insertRow(0);
         currentTable->setItem(0,0, new QTableWidgetItem(transaction.Date.toString("dd:MM:yyyy")));
         currentTable->setItem(0,1, new QTableWidgetItem(transaction.Time.toString("h:mm AP")));
@@ -186,6 +188,7 @@ void FinTool::on_action_transaction_triggered(){
         currentTable->setItem(0,3, new QTableWidgetItem(transaction.Information));
         currentTable->setItem(0,4, new QTableWidgetItem(transaction.transType));
         currentTable->setItem(0,5, new QTableWidgetItem(QString::number(transaction.Amount)));
+        currentTable->setItem(0,6, new QTableWidgetItem(QString::number(this->balance)));
         writeTransaction(transaction, this->userName);
 
     }
@@ -262,4 +265,35 @@ void FinTool::writeTransaction(inputData transaction, QString username){
 
 
     file.close();
+}
+
+void FinTool::calculate_current_balance(double Amount, QString transType)
+{
+    if(transType == "Credit")
+        balance -= Amount;
+    if (transType == "Debit")
+        balance += Amount;
+    qDebug() << "balance: " << balance;
+}
+
+
+/*Crashes when uncommented. I think it might be because initially there isn't a double in item(0,6) when an account is created */
+void FinTool::on_tabWidget_currentChanged(int index)
+{
+
+    //Three different ways to find *currentTable
+
+//     QTableWidget *currentTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
+//     QTableWidget *currentTable = ui->tabWidget->widget(index)->findChild<QTableWidget *>();
+//     QTableWidget *currentTable = (QTableWidget*)(ui->tabWidget->widget(index));
+
+
+//     QTableWidgetItem *currentItem;
+//     QVariant data;
+
+//     currentItem = currentTable->item(0,6);
+//     data = currentItem->data(0);
+//     this->balance = data.toDouble(0);
+
+     qDebug() << "Tab Index = " <<index;
 }

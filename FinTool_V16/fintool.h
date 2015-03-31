@@ -102,12 +102,18 @@ public:
 
     void populateTables(QString username);
 
+    void calculate_current_balance(double Amount, QString transType);
+
 public slots:
     void on_action_transaction_triggered();
     void on_action_account_triggered();
 
+private slots:
+    void on_tabWidget_currentChanged(int index);
+
 private:
     Ui::FinTool *ui;
+    double balance;
 };
 
 #endif // FINTOOL_H

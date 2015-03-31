@@ -168,8 +168,8 @@ void addTransaction::on_pushButton_clicked()
 
     if(Missing_Fields.length() == 0){
         this->accept();
-        ui->cb_category->setCurrentIndex(0);
-        ui->cb_transaction->setCurrentIndex(0);
+//        ui->cb_category->setCurrentIndex(0);
+//        ui->cb_transaction->setCurrentIndex(0);
     }
     else{
         Required_fields.setText("Please enter the following fields: "+Missing_Fields.join(',')+".");
