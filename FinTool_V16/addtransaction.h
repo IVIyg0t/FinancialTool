@@ -44,11 +44,16 @@ private slots:
 
 //    void on_cb_transaction_currentIndexChanged(const QString &arg1);
 
+    void on_pushButton_clicked();
+
+    void on_pushButton_2_clicked();
+
 private:
     Ui::addTransaction *ui;
     QStringList Categories;
     QStringList Transaction_types;
-    QMessageBox Required_Fields;
+
+    QMessageBox Required_fields;
 };
 
 #endif // ADDTRANSACTION_H
