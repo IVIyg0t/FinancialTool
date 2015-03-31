@@ -178,6 +178,7 @@ void FinTool::on_action_transaction_triggered(){
     if(transaction.success == true){
 
         QTableWidget *currentTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
+
         currentTable->insertRow(0);
         currentTable->setItem(0,0, new QTableWidgetItem(transaction.Date.toString("dd:MM:yyyy")));
         currentTable->setItem(0,1, new QTableWidgetItem(transaction.Time.toString("h:mm AP")));
@@ -186,6 +187,7 @@ void FinTool::on_action_transaction_triggered(){
         currentTable->setItem(0,4, new QTableWidgetItem(transaction.transType));
         currentTable->setItem(0,5, new QTableWidgetItem(QString::number(transaction.Amount)));
         writeTransaction(transaction, this->userName);
+
     }
 }
 
@@ -247,7 +249,7 @@ void FinTool::writeTransaction(inputData transaction, QString username){
         out << "N/A,";
 
     if(transaction.Information != "")
-        out << transaction.Information << "\n";
+        out << transaction.Information << ",";
     else
         out << "N/A\n";
 
@@ -256,7 +258,7 @@ void FinTool::writeTransaction(inputData transaction, QString username){
     else
         out << "N/A,";
 
-    out << transaction.Amount << ",";
+    out << transaction.Amount << "\n";
 
 
     file.close();
