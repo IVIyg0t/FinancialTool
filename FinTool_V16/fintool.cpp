@@ -88,16 +88,27 @@ void FinTool::populateTables(QString username){
 
                 // For each element in transDeets (Transaction Details) as "s" do the following
                 int j = 0;
+                double amount;
+                QString TransType;
                 foreach(QString s, transDeets){
                     qDebug(s.toLatin1());
+
                    // QWidget *page = ui->tabWidget->widget(tabIndex);  // Create a pointer to the widget inside the current tab
                    // QTableWidget *table = page->findChild<QTableWidget *>(); // create a QTableWidget pointer to the QTableWidget inside the page
                    QTableWidget *table = ui->tabWidget->widget(tabIndex)->findChild<QTableWidget *>();
-                   if(j == 0)   // If j == 0 then we need to insert a new row at the top for importing our transaction into
-                        table->insertRow(0);
+                   if(j == 0){   // If j == 0 then we need to insert a new row at the top for importing our transaction into
+                        table->insertRow(0); 
+                   }
+                   else if (j == 4)
+                       TransType = s;
+                   else if(j == 5)
+                       amount = s.toDouble();
                     table->setItem(0,j, new QTableWidgetItem(s)); // Set the current item ("s") into the 0th row and the jth column
                     j++;
                 }
+                calculate_current_balance(amount, TransType);
+                QTableWidget *table = ui->tabWidget->widget(tabIndex)->findChild<QTableWidget *>();
+                table->setItem(0,6,new QTableWidgetItem(QString::number(balance)));
                 j = 0;
             }
             fp.close(); //Outside of while() , Close the file.
@@ -180,7 +191,9 @@ void FinTool::on_action_transaction_triggered(){
     if(transaction.success == true){
 
         QTableWidget *currentTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
+
         calculate_current_balance(transaction.Amount, transaction.transType);
+
         currentTable->insertRow(0);
         currentTable->setItem(0,0, new QTableWidgetItem(transaction.Date.toString("dd:MM:yyyy")));
         currentTable->setItem(0,1, new QTableWidgetItem(transaction.Time.toString("h:mm AP")));
@@ -270,9 +283,9 @@ void FinTool::writeTransaction(inputData transaction, QString username){
 void FinTool::calculate_current_balance(double Amount, QString transType)
 {
     if(transType == "Credit")
-        balance -= Amount;
-    if (transType == "Debit")
         balance += Amount;
+    if (transType == "Debit")
+        balance -= Amount;
     qDebug() << "balance: " << balance;
 }
 
