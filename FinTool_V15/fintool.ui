@@ -45,7 +45,7 @@
    </property>
    <widget class="QMenu" name="menuFinancial_Tool_V1_4">
     <property name="title">
-     <string>Financial Tool V1.4</string>
+     <string>Financial Tool V1.5</string>
     </property>
    </widget>
    <widget class="QMenu" name="menuAdd">
