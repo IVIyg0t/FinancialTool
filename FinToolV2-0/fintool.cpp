@@ -61,7 +61,40 @@ void FinTool::writeTransaction(inputData transaction, QString User){
 }
 
 
+void FinTool::editTransactionFileAmount(double edit, int totalRow, int row, int column){
+    QFile file("users/"+this->Username+"/"+ui->tabWidget->tabText(ui->tabWidget->currentIndex()));
+    file.open(QIODevice::ReadWrite);
+    QTextStream in(&file);
+    int lineIndex = totalRow - row;
+    int i = 0;
+    while(!in.atEnd()){
+        QString line = in.readLine();
+        i++;
+    }
 
+    QVector<QStringList> data(i);
+
+    in.seek(0);
+    i = 0;
+    while(!in.atEnd()){
+        QString line = in.readLine();
+        data[i].append(line.split(','));
+        i++;
+    }
+
+    QStringList slist = data.at(lineIndex-1);
+    slist.replace(column,QString::number(edit));
+    data.replace(lineIndex-1,slist);
+
+    in.seek(0);
+    for(int j = 0; j < totalRow; j++){
+        QString line = data.at(j).join(',');
+        in << line << "\n";
+    }
+
+    file.close();
+
+}
 
 
 void FinTool::on_action_add_bank_account_triggered(){
@@ -105,7 +138,9 @@ void FinTool::on_action_add_transaction_triggered(){
     }
     if(this->newTransactionData.success == true){
         QTableWidget *curTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
+        curTable->blockSignals(true);
         setTransactionToCurrentTable(curTable);
+        curTable->blockSignals(false);
         writeTransaction(this->newTransactionData,this->Username);
 
     }
@@ -233,5 +268,6 @@ void FinTool::on_cell_item_changed(int row, int column){
         curTable->blockSignals(false);
 
         calcBalanceBottomTop(curTable);
+        editTransactionFileAmount(amount,curTable->rowCount(),row,column);
     }
 }

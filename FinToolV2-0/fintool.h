@@ -78,8 +78,10 @@ public:
 //    void calculateCurrentBalance(double amount, QString transType);
 
 
-    //FinTool balance functions
+    //Function to update the account files when user edits a transaction in the table
+    void editTransactionFileAmount(double edit,int totalRow, int row, int column);
 
+    void editTransactionFileTransactionType(QString edit, int totalRow, int row, int column);
     //Calculate current balance
     void convertAmount(){
         if(this->newTransactionData.transType == "Debit"){
