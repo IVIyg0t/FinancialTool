@@ -9,7 +9,11 @@ FinTool::FinTool(QWidget *parent) :
     ui->setupUi(this);
     userDialog login;
 
+
+
     this->balance = 0.0;
+
+    ui->tabWidget->
 
     //Connect Add Transaction menu item to transaction dialog
     connect(ui->actionTransaction,SIGNAL(triggered()), this, SLOT(on_action_transaction_triggered()));
@@ -294,11 +298,11 @@ void FinTool::calculate_current_balance(double Amount, QString transType)
 void FinTool::on_tabWidget_currentChanged(int index)
 {
 
-    //Three different ways to find *currentTable
+//    //Three different ways to find *currentTable
 
 //     QTableWidget *currentTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
-//     QTableWidget *currentTable = ui->tabWidget->widget(index)->findChild<QTableWidget *>();
-//     QTableWidget *currentTable = (QTableWidget*)(ui->tabWidget->widget(index));
+////     QTableWidget *currentTable = ui->tabWidget->widget(index)->findChild<QTableWidget *>();
+////     QTableWidget *currentTable = (QTableWidget*)(ui->tabWidget->widget(index));
 
 
 //     QTableWidgetItem *currentItem;
