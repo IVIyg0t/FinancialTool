@@ -81,14 +81,23 @@ public:
         }
     }
 
-    //Calculate previous balance
+    // Calculate Balance from bottom to top of table
+    void calcBalanceBottomTop(QTableWidget *curTable){
+        int rowCount = curTable->rowCount();
+        this->newTransactionData.curBalance = 0;
+        for(int i = rowCount-1; i >= 0; i--){
+            QTableWidgetItem *curItem = curTable->item(i,4);
+            double theValue = curItem->text().toDouble();
+            qDebug() << theValue << "\n" << i;
+            this->newTransactionData.curBalance += theValue;
 
+            curTable->setItem(i,5, new QTableWidgetItem(QString::number(this->newTransactionData.curBalance)));
+        }
+    }
 
 
     //Function for setting a transaction to the curTable
-    void setTransactionToCurrentTable(QTableWidget *curTable, bool isFromFile){
-        if(!isFromFile)
-            this->newTransactionData.curBalance += this->newTransactionData.Amount;
+    void setTransactionToCurrentTable(QTableWidget *curTable){
 
         curTable->insertRow(0);
         curTable->setItem(0,0, new QTableWidgetItem(this->newTransactionData.Date.toString("dd:MM:yyyy")));
@@ -96,7 +105,9 @@ public:
         curTable->setItem(0,2, new QTableWidgetItem(this->newTransactionData.Category));
         curTable->setItem(0,3, new QTableWidgetItem(this->newTransactionData.information));
         curTable->setItem(0,4, new QTableWidgetItem(QString::number(this->newTransactionData.Amount)));
-        curTable->setItem(0,5, new QTableWidgetItem(QString::number(this->newTransactionData.curBalance)));
+       // curTable->setItem(0,5, new QTableWidgetItem(QString::number(this->newTransactionData.curBalance)));
+
+        calcBalanceBottomTop(curTable);
     }
 
     //Function for writing a transaction
@@ -183,6 +194,9 @@ public:
         else
             return false;
     }
+
+private slots:
+    void on_tabWidget_currentChanged(int index);
 
 private:
     QString Username;

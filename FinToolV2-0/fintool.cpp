@@ -53,8 +53,7 @@ void FinTool::writeTransaction(inputData transaction, QString User){
     else
         out << "N/A,";
 
-    out << transaction.Amount << ",";
-    out << transaction.curBalance << "\n";
+    out << transaction.Amount << "\n";
 
     file.close();
 }
@@ -104,7 +103,7 @@ void FinTool::on_action_add_transaction_triggered(){
     }
     if(this->newTransactionData.success == true){
         QTableWidget *curTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
-        setTransactionToCurrentTable(curTable, false);
+        setTransactionToCurrentTable(curTable);
         writeTransaction(this->newTransactionData,this->Username);
 
     }
@@ -165,11 +164,19 @@ void FinTool::importTables(QString username){
                 this->newTransactionData.Category = transDeets.at(2);
                 this->newTransactionData.information = transDeets.at(3);
                 this->newTransactionData.Amount = transDeets.at(4).toDouble();
-                this->newTransactionData.curBalance = transDeets.at(5).toDouble();
-                setTransactionToCurrentTable(curTable, true);
+                //this->newTransactionData.curBalance = transDeets.at(5).toDouble();
+                setTransactionToCurrentTable(curTable);
 
             }
         }
     }
 }
 
+
+void FinTool::on_tabWidget_currentChanged(int index)
+{
+    if(index > 0){
+        QTableWidget *table = ui->tabWidget->widget(index)->findChild<QTableWidget *>();
+        calcBalanceBottomTop(table);
+    }
+}
