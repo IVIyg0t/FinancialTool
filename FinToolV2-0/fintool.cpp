@@ -12,6 +12,8 @@ FinTool::FinTool(QString username, QWidget *parent) :
     connect(ui->actionNew_bank_account,SIGNAL(triggered()),this,SLOT(on_action_add_bank_account_triggered()));
     connect(ui->actionNew_transaction,SIGNAL(triggered()), this, SLOT(on_action_add_transaction_triggered()));
 
+
+
 //    if(!accountsExist(this->Username)){
 //        createFirstTabAccount tab;
 //        if(tab.exec() == QDialog::Accepted){
@@ -65,7 +67,7 @@ void FinTool::writeTransaction(inputData transaction, QString User){
 void FinTool::on_action_add_bank_account_triggered(){
     addTabAccount newtab;
     if(newtab.exec()== QDialog::Accepted){
-        QTableWidget *newTable = new QTableWidget();
+        QTableWidget *newTable = createTable();
         formatTable(newTable);
 
         //Create a new QWidget and palce it in a new tab in the QTabWidget
@@ -116,8 +118,7 @@ void FinTool::importTabAccount(QString username){
     int iter = 1;
     foreach(QString file, accountList){
         if((file !="userAccount") && (file != "categories")){
-            QTableWidget *newTable = new QTableWidget();
-
+            QTableWidget *newTable = createTable();
             formatTable(newTable);
 
             ui->tabWidget->addTab(new QWidget(), file);
@@ -158,7 +159,7 @@ void FinTool::importTables(QString username){
                 }
 
                 QTableWidget *curTable = ui->tabWidget->widget(tabindex)->findChild<QTableWidget *>();
-
+                curTable->blockSignals(true);
                 this->newTransactionData.Date = QDate::fromString(transDeets.at(0),"dd:MM:yyyy");
                 this->newTransactionData.transType = transDeets.at(1);
                 this->newTransactionData.Category = transDeets.at(2);
@@ -166,6 +167,7 @@ void FinTool::importTables(QString username){
                 this->newTransactionData.Amount = transDeets.at(4).toDouble();
                 //this->newTransactionData.curBalance = transDeets.at(5).toDouble();
                 setTransactionToCurrentTable(curTable);
+                curTable->blockSignals(false);
 
             }
         }
@@ -178,5 +180,58 @@ void FinTool::on_tabWidget_currentChanged(int index)
     if(index > 0){
         QTableWidget *table = ui->tabWidget->widget(index)->findChild<QTableWidget *>();
         calcBalanceBottomTop(table);
+    }
+}
+
+void FinTool::on_cell_item_changed(int row, int column){
+    QTableWidget *curTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
+    if(column == 1){
+        curTable->blockSignals(true);
+        QString lastTranType;
+        QString transType = curTable->item(row,1)->text();
+
+        if(curTable->item(row,4)->text().toDouble() < 0)
+            lastTranType = "Debit";
+        else
+            lastTranType = "Credit";
+
+        if(transType == "credit"){
+            transType = "Credit";
+            curTable->setItem(row,1, new QTableWidgetItem("Credit"));
+        }
+        else if(transType == "debit"){
+            transType = "Debit";
+            curTable->setItem(row,1, new QTableWidgetItem("Debit"));
+        }
+        else if((transType != "Debit") && (transType != "Credit") && (transType != "debit") && (transType != "credit")){
+            curTable->setItem(row,1, new QTableWidgetItem(lastTranType));
+            QMessageBox badTransType;
+            badTransType.setText("The transaction type is invalid, please type either 'Credit' or 'Debit'");
+            badTransType.exec();
+        }
+        double amount = curTable->item(row,4)->text().toDouble();
+        if((lastTranType == "Credit") ^ (transType == "Credit"))
+            amount = amount * -1;
+
+        curTable->setItem(row,4, new QTableWidgetItem(QString::number(amount)));
+
+        curTable->blockSignals(false);
+        calcBalanceBottomTop(curTable);
+    }
+    else if(column == 4){
+        QString transType = curTable->item(row,1)->text();
+        double amount = curTable->item(row,4)->text().toDouble();
+
+        curTable->blockSignals(true);
+
+        if(transType == "Debit" && amount > 0)
+            amount = amount *-1;
+        else if(transType == "Credit" && amount < 0)
+            amount = amount*-1;
+        curTable->setItem(row,4, new QTableWidgetItem(QString::number(amount)));
+
+        curTable->blockSignals(false);
+
+        calcBalanceBottomTop(curTable);
     }
 }

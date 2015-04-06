@@ -59,6 +59,12 @@ public:
 
     //END Setter Function
 
+    QTableWidget* createTable(){
+        QTableWidget *newTable = new QTableWidget();
+        connect(newTable,SIGNAL(cellChanged(int,int)),this,SLOT(on_cell_item_changed(int, int)));
+        return newTable;
+    }
+
 //    //Function to create a QTableWidget
 //    void setupTable();
 
@@ -194,6 +200,9 @@ public:
         else
             return false;
     }
+
+public slots:
+    void on_cell_item_changed(int, int);
 
 private slots:
     void on_tabWidget_currentChanged(int index);
