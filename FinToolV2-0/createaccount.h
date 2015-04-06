@@ -3,6 +3,8 @@
 
 #include <QDialog>
 #include <QString>
+#include <QDir>
+#include <QMessageBox>
 
 namespace Ui {
 class createAccount;
@@ -18,6 +20,14 @@ public:
 
     QString getUsername();
     QString getPassword();
+
+    bool checkIfUserExists(QString Username){
+        QDir dir("users/"+Username);
+        if(dir.exists())
+            return true;
+        else
+            return false;
+    }
 
 private slots:
     void on_createaccount_clicked();

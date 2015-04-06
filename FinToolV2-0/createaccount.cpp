@@ -22,9 +22,18 @@ QString createAccount::getPassword(){
     return ui->password->text();
 }
 
+
+
 void createAccount::on_createaccount_clicked()
 {
-    this->accept();
+    if(!checkIfUserExists(getUsername()))
+        this->accept();
+    else{
+        QMessageBox createFailed;
+        createFailed.setText("The username you have chosen already exists, please choose a new username or cancel");
+        createFailed.exec();
+    }
+
 }
 
 void createAccount::on_cancel_clicked()
