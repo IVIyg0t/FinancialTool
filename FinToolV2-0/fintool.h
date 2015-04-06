@@ -14,6 +14,8 @@
 #include <QTableWidget>
 #include <QAbstractItemView>
 #include <QDebug>
+#include <QComboBox>
+#include <QDialog>
 
 #include "createfirsttabaccount.h"
 #include "addtabaccount.h"
@@ -59,32 +61,48 @@ public:
 
     //END Setter Function
 
+    bool FinTool::eventFilter(QObject *target, QEvent *event);
+
+    //Function to import Tab Accounts by a username
+    void importTabAccount(QString username);
+
+    //fuction to import Tables from a username
+    void importTables(QString username);
+
+
     QTableWidget* createTable(){
         QTableWidget *newTable = new QTableWidget();
         connect(newTable,SIGNAL(cellChanged(int,int)),this,SLOT(on_cell_item_changed(int, int)));
+        connect(newTable,SIGNAL(cellDoubleClicked(int,int)),this,SLOT(on_cell_item_doubleclicked(int,int)));
         return newTable;
     }
 
-//    //Function to create a QTableWidget
-//    void setupTable();
+    QStringList genCategoryOptions(){
+        this->categories.clear();
+        QFile file("users/"+this->Username+"/categories");
+        file.open(QIODevice::ReadOnly);
+        QTextStream in(&file);
 
-//    //Function to import Tab Accounts by a username
-      void importTabAccount(QString username);
+        while(!in.atEnd()){
+            QString line = in.readLine();
+            QStringList cats;
+            cats.append(line.split(','));
 
-//    //fuction to import Tables from a username
-      void importTables(QString username);
-
-//    //function to calculate the current balance of a tab
-//    void calculateCurrentBalance(double amount, QString transType);
-
+            foreach(QString s, cats){
+                this->categories += s;
+            }
+        }
+        return this->categories;
+        file.close();
+    }
 
     //Function to update the account files when user edits a transaction in the table
-    void editTransactionFileAmount(double edit,int totalRow, int row, int column);
+    void editTransactionFileAmount(QString edit,int totalRow, int row, int column);
 
     void editTransactionFileTransactionType(QString edit, int totalRow, int row, int column);
     //Calculate current balance
     void convertAmount(){
-        if(this->newTransactionData.transType == "Debit"){
+        if(this->newTransactionData.transType == "Expense"){
             this->newTransactionData.Amount = (this->newTransactionData.Amount*-1);
         }
     }
@@ -108,7 +126,7 @@ public:
     void setTransactionToCurrentTable(QTableWidget *curTable){
 
         curTable->insertRow(0);
-        curTable->setItem(0,0, new QTableWidgetItem(this->newTransactionData.Date.toString("dd:MM:yyyy")));
+        curTable->setItem(0,0, new QTableWidgetItem(this->newTransactionData.Date.toString("dd/MM/yyyy")));
         curTable->setItem(0,1, new QTableWidgetItem(this->newTransactionData.transType));
         curTable->setItem(0,2, new QTableWidgetItem(this->newTransactionData.Category));
         curTable->setItem(0,3, new QTableWidgetItem(this->newTransactionData.information));
@@ -144,6 +162,10 @@ public:
         }
         else
             return false;
+    }
+
+    void delFile(QString path){
+        QFile::remove(path);
     }
 
     //Function to check if a file exists
@@ -205,6 +227,7 @@ public:
 
 public slots:
     void on_cell_item_changed(int, int);
+    void on_cell_item_doubleclicked(int, int);
 
 private slots:
     void on_tabWidget_currentChanged(int index);
@@ -213,6 +236,9 @@ private:
     QString Username;
     QString Password;
     QString AccountType;
+    QStringList categories;
+    int curComboRow;
+    int curComboColumn;
     inputData newTransactionData;
     Ui::FinTool *ui;
 };

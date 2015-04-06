@@ -37,7 +37,7 @@ void FinTool::writeTransaction(inputData transaction, QString User){
 
     QTextStream out(&file);
 
-    out << transaction.Date.toString("dd:MM:yyyy") << ",";
+    out << transaction.Date.toString("dd/MM/yyyy") << ",";
 
     if(transaction.transType != "")
         out << transaction.transType << ",";
@@ -61,9 +61,9 @@ void FinTool::writeTransaction(inputData transaction, QString User){
 }
 
 
-void FinTool::editTransactionFileAmount(double edit, int totalRow, int row, int column){
+void FinTool::editTransactionFileAmount(QString edit, int totalRow, int row, int column){
     QFile file("users/"+this->Username+"/"+ui->tabWidget->tabText(ui->tabWidget->currentIndex()));
-    file.open(QIODevice::ReadWrite);
+    file.open(QIODevice::ReadOnly);
     QTextStream in(&file);
     int lineIndex = totalRow - row;
     int i = 0;
@@ -83,16 +83,20 @@ void FinTool::editTransactionFileAmount(double edit, int totalRow, int row, int 
     }
 
     QStringList slist = data.at(lineIndex-1);
-    slist.replace(column,QString::number(edit));
+    slist.replace(column, edit);
     data.replace(lineIndex-1,slist);
+    file.close();
 
-    in.seek(0);
+    delFile("users/"+this->Username+"/"+ui->tabWidget->tabText(ui->tabWidget->currentIndex()));
+    QFile ofile("users/"+this->Username+"/"+ui->tabWidget->tabText(ui->tabWidget->currentIndex()));
+    ofile.open(QIODevice::WriteOnly);
+    QTextStream out(&ofile);
     for(int j = 0; j < totalRow; j++){
         QString line = data.at(j).join(',');
-        in << line << "\n";
+        out << line << "\n";
     }
 
-    file.close();
+    ofile.close();
 
 }
 
@@ -195,7 +199,7 @@ void FinTool::importTables(QString username){
 
                 QTableWidget *curTable = ui->tabWidget->widget(tabindex)->findChild<QTableWidget *>();
                 curTable->blockSignals(true);
-                this->newTransactionData.Date = QDate::fromString(transDeets.at(0),"dd:MM:yyyy");
+                this->newTransactionData.Date = QDate::fromString(transDeets.at(0),"dd/MM/yyyy");
                 this->newTransactionData.transType = transDeets.at(1);
                 this->newTransactionData.Category = transDeets.at(2);
                 this->newTransactionData.information = transDeets.at(3);
@@ -226,26 +230,26 @@ void FinTool::on_cell_item_changed(int row, int column){
         QString transType = curTable->item(row,1)->text();
 
         if(curTable->item(row,4)->text().toDouble() < 0)
-            lastTranType = "Debit";
+            lastTranType = "Expense";
         else
-            lastTranType = "Credit";
+            lastTranType = "Income";
 
-        if(transType == "credit"){
-            transType = "Credit";
-            curTable->setItem(row,1, new QTableWidgetItem("Credit"));
+        if(transType == "income"){
+            transType = "Income";
+            curTable->setItem(row,1, new QTableWidgetItem("Income"));
         }
-        else if(transType == "debit"){
-            transType = "Debit";
-            curTable->setItem(row,1, new QTableWidgetItem("Debit"));
+        else if(transType == "expense"){
+            transType = "Expense";
+            curTable->setItem(row,1, new QTableWidgetItem("Expense"));
         }
-        else if((transType != "Debit") && (transType != "Credit") && (transType != "debit") && (transType != "credit")){
+        else if((transType != "Expense") && (transType != "Income") && (transType != "expense") && (transType != "income")){
             curTable->setItem(row,1, new QTableWidgetItem(lastTranType));
             QMessageBox badTransType;
-            badTransType.setText("The transaction type is invalid, please type either 'Credit' or 'Debit'");
+            badTransType.setText("The transaction type is invalid, please type either 'Income' or 'Expense'");
             badTransType.exec();
         }
         double amount = curTable->item(row,4)->text().toDouble();
-        if((lastTranType == "Credit") ^ (transType == "Credit"))
+        if((lastTranType == "Income") ^ (transType == "Income"))
             amount = amount * -1;
 
         curTable->setItem(row,4, new QTableWidgetItem(QString::number(amount)));
@@ -253,21 +257,58 @@ void FinTool::on_cell_item_changed(int row, int column){
         curTable->blockSignals(false);
         calcBalanceBottomTop(curTable);
     }
+    else if(column == 2){
+        editTransactionFileAmount(curTable->item(row,column)->text(),curTable->rowCount(),row,column);
+    }
     else if(column == 4){
         QString transType = curTable->item(row,1)->text();
         double amount = curTable->item(row,4)->text().toDouble();
 
         curTable->blockSignals(true);
 
-        if(transType == "Debit" && amount > 0)
+        if(transType == "Expense" && amount > 0)
             amount = amount *-1;
-        else if(transType == "Credit" && amount < 0)
+        else if(transType == "Income" && amount < 0)
             amount = amount*-1;
         curTable->setItem(row,4, new QTableWidgetItem(QString::number(amount)));
 
         curTable->blockSignals(false);
 
         calcBalanceBottomTop(curTable);
-        editTransactionFileAmount(amount,curTable->rowCount(),row,column);
+        editTransactionFileAmount(QString::number(amount),curTable->rowCount(),row,column);
     }
+}
+
+void FinTool::on_cell_item_doubleclicked(int row, int column){
+    this->curComboRow = row;
+    this->curComboColumn = column;
+    if(column == 2){
+        QTableWidget *curTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
+        QComboBox *combo = new QComboBox();
+        combo->addItems(genCategoryOptions());
+        combo->installEventFilter(this);
+        curTable->setCellWidget(row,column,combo);
+    }
+}
+
+
+bool FinTool::eventFilter(QObject *target, QEvent *event){
+    QString curType;
+    //QComboBox combo = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QComboBox *>();
+    QTableWidget *curTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
+    QModelIndex ind = curTable->model()->index(this->curComboRow,2);
+    QComboBox *curCombo = qobject_cast<QComboBox *>(curTable->indexWidget(ind));
+
+    if(target == curCombo){
+        if(event->type() == QEvent::KeyPress){
+            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+            if((keyEvent->key() == Qt::Key_Enter) || (keyEvent->key() == Qt::Key_Return)){
+                curType = curCombo->currentText();
+                curTable->removeCellWidget(this->curComboRow,2);
+                curTable->setItem(this->curComboRow,2, new QTableWidgetItem(curType));
+                return true;
+            }
+        }
+    }
+    return QMainWindow::eventFilter(target,event);
 }

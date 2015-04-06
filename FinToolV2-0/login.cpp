@@ -46,7 +46,7 @@ void Login::on_createaccount_clicked()
         this->password = newAccount.getPassword();
 
         createDir("users/"+this->username);
-        writeString("users/"+this->username+"/categories"," ,Groceries,Electric Bill,Gas");
+        writeString("users/"+this->username+"/categories"," ,Work,Groceries,Electric Bill,Gas");
         writeString("users/"+this->username+"/userAccount", this->username+","+this->password);
 
         ui->username->setText(this->username);

@@ -10,9 +10,11 @@ addTransaction::addTransaction(QString Username,QWidget *parent) :
     this->username = Username;
     genCategoryOptions();
     this->categories += "Add Category";
-    this->transtypes = (QStringList() << (QString)"Credit" << (QString)"Debit");
+    this->transtypes = (QStringList() << (QString)"Income" << (QString)"Expense");
     ui->Category->addItems(this->categories);
     ui->TransactionType->addItems(this->transtypes);
+
+    ui->date->setDate(QDate::currentDate());
 }
 
 addTransaction::~addTransaction()
