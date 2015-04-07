@@ -30,6 +30,35 @@ FinTool::~FinTool()
     delete ui;
 }
 
+
+//Function to filter operations when enter or return is presured while editing some cells
+bool FinTool::eventFilter(QObject *target, QEvent *event){
+    QString curType;
+    //QComboBox combo = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QComboBox *>();
+    QTableWidget *curTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
+    QModelIndex ind = curTable->model()->index(this->curComboRow,2);
+    QComboBox *curCombo = qobject_cast<QComboBox *>(curTable->indexWidget(ind));
+
+    if(target == curCombo){
+        if(event->type() == QEvent::KeyPress){
+            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+            if((keyEvent->key() == Qt::Key_Enter) || (keyEvent->key() == Qt::Key_Return)){
+                curType = curCombo->currentText();
+                curTable->removeCellWidget(this->curComboRow,2);
+                curTable->setItem(this->curComboRow,2, new QTableWidgetItem(curType));
+                return true;
+            }
+        }
+    }
+    return QMainWindow::eventFilter(target,event);
+}
+
+
+/*
+ * Functions meant for writing to files
+ *
+ */
+
 void FinTool::writeTransaction(inputData transaction, QString User){
 
     QFile file("users/"+User+"/"+ui->tabWidget->tabText(ui->tabWidget->currentIndex()));
@@ -59,7 +88,6 @@ void FinTool::writeTransaction(inputData transaction, QString User){
 
     file.close();
 }
-
 
 void FinTool::editTransactionFileAmount(QString edit, int totalRow, int row, int column){
     QFile file("users/"+this->Username+"/"+ui->tabWidget->tabText(ui->tabWidget->currentIndex()));
@@ -100,6 +128,12 @@ void FinTool::editTransactionFileAmount(QString edit, int totalRow, int row, int
 
 }
 
+// End of functions meant for writing to files
+
+
+/*
+ *  All Slot Functions
+ */
 
 void FinTool::on_action_add_bank_account_triggered(){
     addTabAccount newtab;
@@ -151,69 +185,6 @@ void FinTool::on_action_add_transaction_triggered(){
 
 }
 
-void FinTool::importTabAccount(QString username){
-    QDir dir("users/"+username+"/");
-    QStringList accountList = dir.entryList(QDir::NoDotAndDotDot|QDir::AllEntries);
-    int iter = 1;
-    foreach(QString file, accountList){
-        if((file !="userAccount") && (file != "categories")){
-            QTableWidget *newTable = createTable();
-            formatTable(newTable);
-
-            ui->tabWidget->addTab(new QWidget(), file);
-            QWidget *wgt = ui->tabWidget->widget(iter);
-            QGridLayout *grid = new QGridLayout;
-            grid->addWidget(newTable);
-            wgt->setLayout(grid);
-
-            ui->tabWidget->setCurrentIndex(iter);
-            iter++;
-        }
-    }
-}
-
-void FinTool::importTables(QString username){
-    QString workingDir = "users/"+username+"/";
-    QDir dir(workingDir);
-    QStringList accountList = dir.entryList(QDir::NoDotAndDotDot|QDir::AllEntries);
-
-    foreach(QString file, accountList){
-        if((file != "userAccount") &&(file != "categories")){
-            QFile fp(workingDir+file);
-            fp.open(QIODevice::ReadOnly);
-            QTextStream in(&fp);
-
-            while(!in.atEnd()){
-                QString Line = in.readLine();
-                QStringList transDeets;
-                int tabindex = -1;
-
-                transDeets.append(Line.split(','));
-
-                for(int k = 0; k < ui->tabWidget->count(); k++){
-                    if(file == ui->tabWidget->tabText(k)){
-                        tabindex = k;
-                        break;
-                    }
-                }
-
-                QTableWidget *curTable = ui->tabWidget->widget(tabindex)->findChild<QTableWidget *>();
-                curTable->blockSignals(true);
-                this->newTransactionData.Date = QDate::fromString(transDeets.at(0),"dd/MM/yyyy");
-                this->newTransactionData.transType = transDeets.at(1);
-                this->newTransactionData.Category = transDeets.at(2);
-                this->newTransactionData.information = transDeets.at(3);
-                this->newTransactionData.Amount = transDeets.at(4).toDouble();
-                //this->newTransactionData.curBalance = transDeets.at(5).toDouble();
-                setTransactionToCurrentTable(curTable);
-                curTable->blockSignals(false);
-
-            }
-        }
-    }
-}
-
-
 void FinTool::on_tabWidget_currentChanged(int index)
 {
     if(index > 0){
@@ -221,6 +192,7 @@ void FinTool::on_tabWidget_currentChanged(int index)
         calcBalanceBottomTop(table);
     }
 }
+
 
 void FinTool::on_cell_item_changed(int row, int column){
     QTableWidget *curTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
@@ -290,25 +262,80 @@ void FinTool::on_cell_item_doubleclicked(int row, int column){
         curTable->setCellWidget(row,column,combo);
     }
 }
+// END Slot functions
 
 
-bool FinTool::eventFilter(QObject *target, QEvent *event){
-    QString curType;
-    //QComboBox combo = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QComboBox *>();
-    QTableWidget *curTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
-    QModelIndex ind = curTable->model()->index(this->curComboRow,2);
-    QComboBox *curCombo = qobject_cast<QComboBox *>(curTable->indexWidget(ind));
+/*
+ * Functions for importing existing user data
+ */
 
-    if(target == curCombo){
-        if(event->type() == QEvent::KeyPress){
-            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-            if((keyEvent->key() == Qt::Key_Enter) || (keyEvent->key() == Qt::Key_Return)){
-                curType = curCombo->currentText();
-                curTable->removeCellWidget(this->curComboRow,2);
-                curTable->setItem(this->curComboRow,2, new QTableWidgetItem(curType));
-                return true;
+void FinTool::importTabAccount(QString username){
+    QDir dir("users/"+username+"/");
+    QStringList accountList = dir.entryList(QDir::NoDotAndDotDot|QDir::AllEntries);
+    int iter = 1;
+    foreach(QString file, accountList){
+        if((file !="userAccount") && (file != "categories")){
+            QTableWidget *newTable = createTable();
+            formatTable(newTable);
+
+            ui->tabWidget->addTab(new QWidget(), file);
+            QWidget *wgt = ui->tabWidget->widget(iter);
+            QGridLayout *grid = new QGridLayout;
+            grid->addWidget(newTable);
+            wgt->setLayout(grid);
+
+            ui->tabWidget->setCurrentIndex(iter);
+            iter++;
+        }
+    }
+}
+
+void FinTool::importTables(QString username){
+    QString workingDir = "users/"+username+"/";
+    QDir dir(workingDir);
+    QStringList accountList = dir.entryList(QDir::NoDotAndDotDot|QDir::AllEntries);
+
+    foreach(QString file, accountList){
+        if((file != "userAccount") &&(file != "categories")){
+            QFile fp(workingDir+file);
+            fp.open(QIODevice::ReadOnly);
+            QTextStream in(&fp);
+
+            while(!in.atEnd()){
+                QString Line = in.readLine();
+                QStringList transDeets;
+                int tabindex = -1;
+
+                transDeets.append(Line.split(','));
+
+                for(int k = 0; k < ui->tabWidget->count(); k++){
+                    if(file == ui->tabWidget->tabText(k)){
+                        tabindex = k;
+                        break;
+                    }
+                }
+
+                QTableWidget *curTable = ui->tabWidget->widget(tabindex)->findChild<QTableWidget *>();
+                curTable->blockSignals(true);
+                this->newTransactionData.Date = QDate::fromString(transDeets.at(0),"dd/MM/yyyy");
+                this->newTransactionData.transType = transDeets.at(1);
+                this->newTransactionData.Category = transDeets.at(2);
+                this->newTransactionData.information = transDeets.at(3);
+                this->newTransactionData.Amount = transDeets.at(4).toDouble();
+                //this->newTransactionData.curBalance = transDeets.at(5).toDouble();
+                setTransactionToCurrentTable(curTable);
+                curTable->blockSignals(false);
+
             }
         }
     }
-    return QMainWindow::eventFilter(target,event);
 }
+
+//End Functions for importing existing user data
+
+
+
+
+
+
+

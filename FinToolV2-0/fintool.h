@@ -59,9 +59,11 @@ public:
         Password = password;
     }
 
-    //END Setter Function
 
     bool FinTool::eventFilter(QObject *target, QEvent *event);
+
+                             /* Existing User Functions */
+
 
     //Function to import Tab Accounts by a username
     void importTabAccount(QString username);
@@ -70,13 +72,68 @@ public:
     void importTables(QString username);
 
 
-    QTableWidget* createTable(){
-        QTableWidget *newTable = new QTableWidget();
-        connect(newTable,SIGNAL(cellChanged(int,int)),this,SLOT(on_cell_item_changed(int, int)));
-        connect(newTable,SIGNAL(cellDoubleClicked(int,int)),this,SLOT(on_cell_item_doubleclicked(int,int)));
-        return newTable;
+                            /* Bool Functions */
+
+    //Function to check if there are any accounts in the 'username's' directory
+    bool accountsExist(QString username){
+        QString workingDir = "users/"+username+"/";
+        QDir dir(workingDir);
+        QStringList accountList = dir.entryList(QDir::NoDotAndDotDot|QDir::AllEntries);
+
+        if(accountList.size() > 1){
+            return true;
+        }
+        else
+            return false;
     }
 
+    // Function to delete a file, takes the path of the file as an argument
+    void delFile(QString path){
+        QFile::remove(path);
+    }
+
+    //Function to check if a file exists
+    bool fileExists(QString path){
+        QFileInfo checkFile(path);
+
+        if(checkFile.exists() && checkFile.isFile()){
+            return true;
+        }else
+            return false;
+    }
+
+    //Function to check if a directory exists
+    bool dirExists(QString path){
+        QDir dir(path);
+        if(dir.exists())
+            return true;
+        else
+            return false;
+    }
+
+    // Function to authenticate a user account when they login
+    bool checkUserAccount(QString username, QString password){
+        QFile file("users/"+username+"/userAccount");
+        file.open(QIODevice::ReadOnly);
+
+        QTextStream in(&file);
+        QString line = in.readLine();
+        QStringList creds;
+
+        creds.append(line.split(','));
+
+        //Validate user creds
+        if(username == creds.at(0) && password == creds.at(1))
+            return true;
+        else
+            return false;
+    }
+
+
+
+                    /* Funtions for File I/O Operations */
+
+    //Function to generate the list of category type options from the categories file
     QStringList genCategoryOptions(){
         this->categories.clear();
         QFile file("users/"+this->Username+"/categories");
@@ -99,7 +156,46 @@ public:
     //Function to update the account files when user edits a transaction in the table
     void editTransactionFileAmount(QString edit,int totalRow, int row, int column);
 
-    void editTransactionFileTransactionType(QString edit, int totalRow, int row, int column);
+    // Function to write a transaction to a file
+    void writeTransaction(inputData transaction, QString User);
+
+    //Function to create a directory
+    void createDir(QString path){
+        QDir().mkdir(path);
+    }
+
+    //Function to create a file
+    void createFile(QString path){
+        QFile file(path);
+        file.open(QIODevice::WriteOnly);
+        file.close();
+    }
+
+    //Function to write & append a string to a file
+    void writeString(QString fileName, QString data){
+        QFile file(fileName);
+        file.open(QIODevice::WriteOnly | QIODevice::Append);
+        QTextStream out(&file);
+        out << data;
+        file.close();
+    }
+
+
+
+                        /* Functions that Edit the QTableWidgets */
+
+
+    //Function to create a QTableWidget
+    QTableWidget* createTable(){
+        QTableWidget *newTable = new QTableWidget();
+        connect(newTable,SIGNAL(cellChanged(int,int)),this,SLOT(on_cell_item_changed(int, int)));
+        connect(newTable,SIGNAL(cellDoubleClicked(int,int)),this,SLOT(on_cell_item_doubleclicked(int,int)));
+        return newTable;
+    }
+
+
+
+
     //Calculate current balance
     void convertAmount(){
         if(this->newTransactionData.transType == "Expense"){
@@ -137,7 +233,6 @@ public:
     }
 
     //Function for writing a transaction
-    void writeTransaction(inputData transaction, QString User);
 
     //Function to easily format a *table
     void formatTable(QTableWidget *newTable){
@@ -151,83 +246,11 @@ public:
     }
 
 
-    //Function to check if there are any accounts in the 'username's' directory
-    bool accountsExist(QString username){
-        QString workingDir = "users/"+username+"/";
-        QDir dir(workingDir);
-        QStringList accountList = dir.entryList(QDir::NoDotAndDotDot|QDir::AllEntries);
-
-        if(accountList.size() > 1){
-            return true;
-        }
-        else
-            return false;
-    }
-
-    void delFile(QString path){
-        QFile::remove(path);
-    }
-
-    //Function to check if a file exists
-    bool fileExists(QString path){
-        QFileInfo checkFile(path);
-
-        if(checkFile.exists() && checkFile.isFile()){
-            return true;
-        }else
-            return false;
-    }
-
-    //Function to check if a directory exists
-    bool dirExists(QString path){
-        QDir dir(path);
-        if(dir.exists())
-            return true;
-        else
-            return false;
-    }
-
-    //Function to create a directory
-    void createDir(QString path){
-        QDir().mkdir(path);
-    }
-
-    //Function to create a file
-    void createFile(QString path){
-        QFile file(path);
-        file.open(QIODevice::WriteOnly);
-        file.close();
-    }
-
-    //Function to write & append a string to a file
-    void writeString(QString fileName, QString data){
-        QFile file(fileName);
-        file.open(QIODevice::WriteOnly | QIODevice::Append);
-        QTextStream out(&file);
-        out << data;
-        file.close();
-    }
-
-    bool checkUserAccount(QString username, QString password){
-        QFile file("users/"+username+"/userAccount");
-        file.open(QIODevice::ReadOnly);
-
-        QTextStream in(&file);
-        QString line = in.readLine();
-        QStringList creds;
-
-        creds.append(line.split(','));
-
-        //Validate user creds
-        if(username == creds.at(0) && password == creds.at(1))
-            return true;
-        else
-            return false;
-    }
 
 public slots:
     void on_cell_item_changed(int, int);
     void on_cell_item_doubleclicked(int, int);
+
 
 private slots:
     void on_tabWidget_currentChanged(int index);
