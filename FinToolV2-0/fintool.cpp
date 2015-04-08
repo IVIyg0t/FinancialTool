@@ -434,6 +434,8 @@ void FinTool::on_action_add_bank_account_triggered(){
 
         //Create accountf file
         createFile("users/"+this->Username+"/"+newtab.getAccountName()+" - "+newtab.getAccountType());
+
+        ui->stackedWidget->setCurrentIndex(1);
     }
 }
 
