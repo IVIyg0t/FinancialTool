@@ -91,14 +91,16 @@ void FinTool::genBalanceReport(){
     // loop through tabs
     for(int i = 1; i < ui->tabWidget->count(); i++){
        QTableWidget *curTable = ui->tabWidget->widget(i)->findChild<QTableWidget *>();
-
-       if(ui->balancereport->rowCount() <= ui->tabWidget->count()-1)
-         ui->balancereport->insertRow(0);
+        if(!curTable->rowCount() == 0){
+            if(ui->balancereport->rowCount() <= ui->tabWidget->count()-1)
+        ui->balancereport->insertRow(0);
 
        //Loop through the columns of first row
-       ui->balancereport->setItem(0,1, new QTableWidgetItem(curTable->item(0,5)->text()));
-       ui->balancereport->setItem(0,0, new QTableWidgetItem(ui->tabWidget->tabText(i)));
-    }
+        ui->balancereport->setItem(0,1, new QTableWidgetItem(curTable->item(0,5)->text()));
+        ui->balancereport->setItem(0,0, new QTableWidgetItem(ui->tabWidget->tabText(i)));
+
+        }
+}
 
     ui->balancereport->insertRow(ui->balancereport->rowCount());
     ui->balancereport->insertRow(ui->balancereport->rowCount());
