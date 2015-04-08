@@ -16,6 +16,9 @@
 #include <QDebug>
 #include <QComboBox>
 #include <QDialog>
+#include <QFont>
+#include <QMenu>
+#include <QHeaderView>
 
 #include "createfirsttabaccount.h"
 #include "addtabaccount.h"
@@ -62,6 +65,20 @@ public:
 
     bool FinTool::eventFilter(QObject *target, QEvent *event);
 
+
+                            /* Functions for generating reports */
+    //Function to generate balance report
+    void genBalanceReport();
+
+    // Function to generate income report
+    void genIncomeReport();
+
+    // Function to generate Expense report
+    void genSpendingAnalysisReport();
+
+    // Functio to generate expense analysis report
+
+
                              /* Existing User Functions */
 
 
@@ -80,7 +97,7 @@ public:
         QDir dir(workingDir);
         QStringList accountList = dir.entryList(QDir::NoDotAndDotDot|QDir::AllEntries);
 
-        if(accountList.size() > 1){
+        if(accountList.size() > 2){
             return true;
         }
         else
@@ -133,7 +150,11 @@ public:
 
                     /* Funtions for File I/O Operations */
 
-    //Function to generate the list of category type options from the categories file
+    // Rewrite transactions to file
+    void rewriteTableToFile(QTableWidget *curTable);
+
+
+    // Function to generate the list of category type options from the categories file
     QStringList genCategoryOptions(){
         this->categories.clear();
         QFile file("users/"+this->Username+"/categories");
@@ -182,18 +203,20 @@ public:
 
 
 
-                        /* Functions that Edit the QTableWidgets */
+                        /* Functions that Edit the QTableWidgets */    
 
 
     //Function to create a QTableWidget
     QTableWidget* createTable(){
         QTableWidget *newTable = new QTableWidget();
+        newTable->setContextMenuPolicy(Qt::CustomContextMenu);
+        //newTable->horizontalHeader()->setSortIndicatorShown(true);
+        //newTable->setSortingEnabled(true);
         connect(newTable,SIGNAL(cellChanged(int,int)),this,SLOT(on_cell_item_changed(int, int)));
         connect(newTable,SIGNAL(cellDoubleClicked(int,int)),this,SLOT(on_cell_item_doubleclicked(int,int)));
+        connect(newTable,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(cellMenu(const QPoint &)));
         return newTable;
     }
-
-
 
 
     //Calculate current balance
@@ -222,7 +245,7 @@ public:
     void setTransactionToCurrentTable(QTableWidget *curTable){
 
         curTable->insertRow(0);
-        curTable->setItem(0,0, new QTableWidgetItem(this->newTransactionData.Date.toString("dd/MM/yyyy")));
+        curTable->setItem(0,0, new QTableWidgetItem(this->newTransactionData.Date.toString("M/d/yyyy")));
         curTable->setItem(0,1, new QTableWidgetItem(this->newTransactionData.transType));
         curTable->setItem(0,2, new QTableWidgetItem(this->newTransactionData.Category));
         curTable->setItem(0,3, new QTableWidgetItem(this->newTransactionData.information));
@@ -237,10 +260,11 @@ public:
     //Function to easily format a *table
     void formatTable(QTableWidget *newTable){
          newTable->setColumnCount(6);
+         newTable->horizontalHeader()->setStretchLastSection(true);
          newTable->setHorizontalHeaderItem(0, new QTableWidgetItem("Date"));
          newTable->setHorizontalHeaderItem(1, new QTableWidgetItem("Transaction"));
          newTable->setHorizontalHeaderItem(2, new QTableWidgetItem("Category"));
-         newTable->setHorizontalHeaderItem(3, new QTableWidgetItem("Additional Info"));
+         newTable->setHorizontalHeaderItem(3, new QTableWidgetItem("Info"));
          newTable->setHorizontalHeaderItem(4, new QTableWidgetItem("Amount"));
          newTable->setHorizontalHeaderItem(5, new QTableWidgetItem("Balance"));
     }
@@ -250,10 +274,13 @@ public:
 public slots:
     void on_cell_item_changed(int, int);
     void on_cell_item_doubleclicked(int, int);
-
+    void cellMenu(const QPoint &);
 
 private slots:
     void on_tabWidget_currentChanged(int index);
+
+    void on_reports_addbankaccount_clicked();
+    void on_date_changed();
 
 private:
     QString Username;
