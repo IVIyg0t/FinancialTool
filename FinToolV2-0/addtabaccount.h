@@ -27,8 +27,12 @@ public:
     QString getAccountName();
     QString getAccountType();
 
+private slots:
+    void on_pushButton_clicked();
+
 private:
     Ui::addTabAccount *ui;
+    QMessageBox string_not_found;
 };
 
 #endif // ADDTABACCOUNT_H
