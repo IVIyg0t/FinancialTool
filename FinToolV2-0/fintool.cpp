@@ -82,6 +82,7 @@ FinTool::~FinTool()
 
 void FinTool::on_date_changed(){
     genIncomeReport();
+    genSpendingAnalysisReport();
 }
 
 //Function to generate balance report
@@ -366,7 +367,7 @@ void FinTool::editTransactionFileAmount(QString edit, int totalRow, int row, int
 void FinTool::cellMenu(const QPoint &pos){
     QMenu menu(this);
     QTableWidget *curTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
-    QAction *u = menu.addAction("Remove Cell");
+    QAction *u = menu.addAction("Remove Row");
     QAction *a = menu.exec(curTable->viewport()->mapToGlobal(pos));
     if(a == u){
         curTable->removeRow(curTable->currentRow());
