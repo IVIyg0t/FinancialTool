@@ -44,11 +44,16 @@ public:
 private slots:
     void on_Category_currentIndexChanged(const QString &arg1);
 
+    void on_pushButton_2_clicked();
+
+    void on_pushButton_clicked();
+
 private:
     QString username;
     QStringList categories;
     QStringList transtypes;
     Ui::addTransaction *ui;
+    QMessageBox Required_Fields;
 };
 
 #endif // ADDTRANSACTION_H

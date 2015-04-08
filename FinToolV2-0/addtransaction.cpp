@@ -10,11 +10,15 @@ addTransaction::addTransaction(QString Username,QWidget *parent) :
     this->username = Username;
     genCategoryOptions();
     this->categories += "Add Category";
-    this->transtypes = (QStringList() << (QString)"Income" << (QString)"Expense");
+    this->transtypes = (QStringList() << (QString)" " << (QString)"Income" << (QString)"Expense");
     ui->Category->addItems(this->categories);
     ui->TransactionType->addItems(this->transtypes);
 
     ui->date->setDate(QDate::currentDate());
+
+    //Popup init
+    Required_Fields.addButton(QMessageBox::Ok);
+    Required_Fields.setWindowTitle((QString)"Error: Required Feilds Missing");
 }
 
 addTransaction::~addTransaction()
@@ -97,4 +101,32 @@ void addTransaction::on_Category_currentIndexChanged(const QString &arg1)
         ui->Category->setEditable(false);
     }
 
+}
+
+void addTransaction::on_pushButton_2_clicked()
+{
+    this->close();
+}
+
+void addTransaction::on_pushButton_clicked()
+{
+    QStringList Missing_Fields;
+
+    if(ui->Amount->value() == 0.0)
+        Missing_Fields << "Ammount";
+    if(ui->Category->currentText() == " ")
+        Missing_Fields << "Category";
+    if(ui->TransactionType->currentText() == " ")
+        Missing_Fields << "Transaction Type";
+
+    if(Missing_Fields.length() == 0)
+    {
+        this->accept();
+        this->close();
+    }
+    else
+    {
+        Required_Fields.setText("The following fields are missing: " + Missing_Fields.join(',') + ".");
+        Required_Fields.show();
+    }
 }

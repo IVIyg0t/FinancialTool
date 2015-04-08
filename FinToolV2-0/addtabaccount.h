@@ -30,6 +30,8 @@ public:
 private slots:
     void on_pushButton_clicked();
 
+    void on_pushButton_2_clicked();
+
 private:
     Ui::addTabAccount *ui;
     QMessageBox string_not_found;
