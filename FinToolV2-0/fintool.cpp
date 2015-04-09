@@ -537,6 +537,23 @@ void FinTool::on_cell_item_changed(int row, int column){
 void FinTool::on_cell_item_doubleclicked(int row, int column){
     this->curComboRow = row;
     this->curComboColumn = column;
+    //Date double clicked
+    if(column == 0)
+    {
+        QTableWidget *curTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
+        QDateEdit *Date_edit = new QDateEdit();
+        Date_edit->setDate(QDate::currentDate());
+        Date_edit->setCalendarPopup(true);
+        Date_edit->installEventFilter(this);
+        curTable->setCellWidget(row,column,Date_edit);
+
+        //Doesn't actually show the pop up
+        Date_edit->calendarWidget()->show();
+
+
+        //Date_edit->actionEvent(QWidget::mousePressEvent(/*Needs the button of the QAbstractSpinBox to have it "click" for the pop up*/));
+    }
+    //Category double clicked
     if(column == 2){
         QTableWidget *curTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
         QComboBox *combo = new QComboBox();

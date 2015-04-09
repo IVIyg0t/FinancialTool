@@ -19,6 +19,7 @@
 #include <QFont>
 #include <QMenu>
 #include <QHeaderView>
+#include <QCalendarWidget>
 
 #include "createfirsttabaccount.h"
 #include "addtabaccount.h"
