@@ -13,8 +13,6 @@ FinTool::FinTool(QWidget *parent) :
 
     this->balance = 0.0;
 
-    ui->tabWidget->
-
     //Connect Add Transaction menu item to transaction dialog
     connect(ui->actionTransaction,SIGNAL(triggered()), this, SLOT(on_action_transaction_triggered()));
     connect(ui->actionAccount, SIGNAL(triggered()), this, SLOT(on_action_account_triggered()));

@@ -80,6 +80,20 @@ FinTool::~FinTool()
     delete ui;
 }
 
+
+void FinTool::on_cell_date_changed(){
+    QTableWidget *curTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
+    QString curDate;
+    QModelIndex ind =  curTable->model()->index(this->curComboRow, 0);
+    QDateEdit *curDateEdit = qobject_cast<QDateEdit *>(curTable->indexWidget(ind));
+
+    curDate = curDateEdit->date().toString("M/d/yyyy");
+    curTable->removeCellWidget(this->curComboRow, 0);
+    curTable->setItem(this->curComboRow,0, new QTableWidgetItem(curDate));
+
+    rewriteTableToFile(curTable);
+}
+
 void FinTool::on_date_changed(){
     genIncomeReport();
     genSpendingAnalysisReport();
@@ -100,7 +114,7 @@ void FinTool::genBalanceReport(){
         ui->balancereport->setItem(0,0, new QTableWidgetItem(ui->tabWidget->tabText(i)));
 
         }
-}
+    }
 
     ui->balancereport->insertRow(ui->balancereport->rowCount());
     ui->balancereport->insertRow(ui->balancereport->rowCount());
@@ -243,20 +257,42 @@ bool FinTool::eventFilter(QObject *target, QEvent *event){
     QString curType;
     //QComboBox combo = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QComboBox *>();
     QTableWidget *curTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
-    QModelIndex ind = curTable->model()->index(this->curComboRow,2);
-    QComboBox *curCombo = qobject_cast<QComboBox *>(curTable->indexWidget(ind));
 
-    if(target == curCombo){
-        if(event->type() == QEvent::KeyPress){
-            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-            if((keyEvent->key() == Qt::Key_Enter) || (keyEvent->key() == Qt::Key_Return)){
-                curType = curCombo->currentText();
-                curTable->removeCellWidget(this->curComboRow,2);
-                curTable->setItem(this->curComboRow,2, new QTableWidgetItem(curType));
-                return true;
+    if(this->curComboColumn == 2){
+        QModelIndex ind = curTable->model()->index(this->curComboRow,2);
+        QComboBox *curCombo = qobject_cast<QComboBox *>(curTable->indexWidget(ind));
+
+        if(target == curCombo){
+            if(event->type() == QEvent::KeyPress){
+                QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+                if((keyEvent->key() == Qt::Key_Enter) || (keyEvent->key() == Qt::Key_Return)){
+                    curType = curCombo->currentText();
+                    curTable->removeCellWidget(this->curComboRow,2);
+                    curTable->setItem(this->curComboRow,2, new QTableWidgetItem(curType));
+                    return true;
+                }
             }
         }
     }
+
+    else if(this->curComboColumn == 0){
+        QString curDate;
+        QModelIndex ind = curTable->model()->index(this->curComboRow,0);
+        QDateEdit *curDateEdit = qobject_cast<QDateEdit *>(curTable->indexWidget(ind));
+        if(target == curDateEdit){
+            if(event->type() == QEvent::KeyPress){
+                QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+                if((keyEvent->key() == Qt::Key_Enter) || (keyEvent->key() == Qt::Key_Return)){
+                    curDate = curDateEdit->date().toString("M/d/yyyy");
+                    curTable->removeCellWidget(this->curComboRow,0);
+                    curTable->setItem(this->curComboRow,0, new QTableWidgetItem(curDate));
+                    //editTransactionFileAmount(curDate,curTable->rowCount(),this->curComboRow,this->curComboColumn);
+                    rewriteTableToFile(curTable);
+                }
+            }
+        }
+    }
+
     return QMainWindow::eventFilter(target,event);
 }
 
@@ -290,6 +326,7 @@ void FinTool::rewriteTableToFile(QTableWidget *curTable){
 }
 
 
+// PROBLEM
 void FinTool::writeTransaction(inputData transaction, QString User){
 
     QFile file("users/"+User+"/"+ui->tabWidget->tabText(ui->tabWidget->currentIndex()));
@@ -457,7 +494,8 @@ void FinTool::on_action_add_transaction_triggered(){
                 curTable->blockSignals(true);
                 setTransactionToCurrentTable(curTable);
                 curTable->blockSignals(false);
-                writeTransaction(this->newTransactionData,this->Username);
+                //writeTransaction(this->newTransactionData,this->Username);
+                rewriteTableToFile(curTable);
             }
         }
     }
@@ -479,6 +517,22 @@ void FinTool::on_tabWidget_currentChanged(int index)
 
 void FinTool::on_cell_item_changed(int row, int column){
     QTableWidget *curTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
+    if(column == 0){
+        QString line;
+        QStringList transaction;
+        for(int i = 0; i < curTable->columnCount()-1; i++){
+            transaction << curTable->item(curTable->currentRow(),i)->text();
+        }
+        curTable->blockSignals(true);
+        this->newTransactionData.Date = QDate::fromString(transaction[0],"M/d/yyyy");
+        this->newTransactionData.transType = transaction[1];
+        this->newTransactionData.Category = transaction[2];
+        this->newTransactionData.information = transaction[3];
+        this->newTransactionData.Amount = transaction[4].toDouble();
+        curTable->removeRow(this->curComboRow);
+        setTransactionToCurrentTable(curTable);
+        curTable->blockSignals(false);
+    }
     if(column == 1){
         curTable->blockSignals(true);
         QString lastTranType;
@@ -513,7 +567,8 @@ void FinTool::on_cell_item_changed(int row, int column){
         calcBalanceBottomTop(curTable);
     }
     else if(column == 2){
-        editTransactionFileAmount(curTable->item(row,column)->text(),curTable->rowCount(),row,column);
+        //editTransactionFileAmount(curTable->item(row,column)->text(),curTable->rowCount(),row,column);
+        rewriteTableToFile(curTable);
     }
     else if(column == 4){
         QString transType = curTable->item(row,1)->text();
@@ -530,7 +585,8 @@ void FinTool::on_cell_item_changed(int row, int column){
         curTable->blockSignals(false);
 
         calcBalanceBottomTop(curTable);
-        editTransactionFileAmount(QString::number(amount),curTable->rowCount(),row,column);
+        //editTransactionFileAmount(QString::number(amount),curTable->rowCount(),row,column);
+       rewriteTableToFile(curTable);
     }
 }
 
@@ -542,13 +598,14 @@ void FinTool::on_cell_item_doubleclicked(int row, int column){
     {
         QTableWidget *curTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
         QDateEdit *Date_edit = new QDateEdit();
+        connect(Date_edit,SIGNAL(editingFinished()),this,SLOT(on_cell_date_changed()));
         Date_edit->setDate(QDate::currentDate());
         Date_edit->setCalendarPopup(true);
         Date_edit->installEventFilter(this);
         curTable->setCellWidget(row,column,Date_edit);
 
         //Doesn't actually show the pop up
-        Date_edit->calendarWidget()->show();
+        //Date_edit->calendarWidget()->show();
 
 
         //Date_edit->actionEvent(QWidget::mousePressEvent(/*Needs the button of the QAbstractSpinBox to have it "click" for the pop up*/));
@@ -625,7 +682,6 @@ void FinTool::importTables(QString username){
                 //this->newTransactionData.curBalance = transDeets.at(5).toDouble();
                 setTransactionToCurrentTable(curTable);
                 curTable->blockSignals(false);
-
             }
         }
     }
