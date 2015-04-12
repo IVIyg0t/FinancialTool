@@ -21,6 +21,7 @@
 #include <QHeaderView>
 #include <QCalendarWidget>
 
+#include "graph.h"
 #include "createfirsttabaccount.h"
 #include "addtabaccount.h"
 #include "addtransaction.h"
@@ -318,6 +319,7 @@ private slots:
 
     void on_reports_addbankaccount_clicked();
     void on_date_changed();
+
 
 private:
     QString Username;
