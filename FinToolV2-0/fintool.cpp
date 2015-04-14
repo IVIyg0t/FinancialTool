@@ -97,12 +97,13 @@ void FinTool::on_cell_date_changed(){
     QString curDate;
     QModelIndex ind =  curTable->model()->index(this->curComboRow, 0);
     QDateEdit *curDateEdit = qobject_cast<QDateEdit *>(curTable->indexWidget(ind));
-
+    curTable->blockSignals(true);
     curDate = curDateEdit->date().toString("M/d/yyyy");
     curTable->removeCellWidget(this->curComboRow, 0);
     curTable->setItem(this->curComboRow,0, new QTableWidgetItem(curDate));
 
     rewriteTableToFile(curTable);
+    curTable->blockSignals(false);
 }
 
 void FinTool::on_date_changed(){
@@ -286,29 +287,31 @@ bool FinTool::eventFilter(QObject *target, QEvent *event){
         }
     }
 
-//    else if(this->curComboColumn == 0){
-//        QString curDate;
-//        QModelIndex ind = curTable->model()->index(this->curComboRow,0);
-//        QDateEdit *curDateEdit = qobject_cast<QDateEdit *>(curTable->indexWidget(ind));
-//        if(target == curDateEdit)
-//        {
-//            if(event->type() == QEvent::KeyPress)
-//            {
-//                QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-//                if((keyEvent->key() == Qt::Key_Enter) || (keyEvent->key() == Qt::Key_Return))
-//                {
-//                    curDate = curDateEdit->date().toString("M/d/yyyy");
-//                    curTable->removeCellWidget(this->curComboRow,0);
-//                    curTable->setItem(this->curComboRow,0, new QTableWidgetItem(curDate));
-//                    //editTransactionFileAmount(curDate,curTable->rowCount(),this->curComboRow,this->curComboColumn);
-//                    rewriteTableToFile(curTable);
-//                }
-//            }
-//        }
-//    }
+    else if(this->curComboColumn == 0){
+        QString curDate;
+        QModelIndex ind = curTable->model()->index(this->curComboRow,0);
+        QDateEdit *curDateEdit = qobject_cast<QDateEdit *>(curTable->indexWidget(ind));
+        if(target == curDateEdit)
+        {
+            if(event->type() == QEvent::KeyPress)
+            {
+                QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+                if((keyEvent->key() == Qt::Key_Enter) || (keyEvent->key() == Qt::Key_Return))
+                {
 
+                    curDate = curDateEdit->date().toString("M/d/yyyy");
+                    curTable->removeCellWidget(this->curComboRow,0);
+                    curTable->setItem(this->curComboRow,0, new QTableWidgetItem(curDate));
+                    //editTransactionFileAmount(curDate,curTable->rowCount(),this->curComboRow,this->curComboColumn);
+                    rewriteTableToFile(curTable);
+                }
+            }
+        }
+    }
     return QMainWindow::eventFilter(target,event);
 }
+
+
 
 
 /*
@@ -655,7 +658,7 @@ void FinTool::on_cell_item_doubleclicked(int row, int column){
     {
         QTableWidget *curTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
         QDateEdit *Date_edit = new QDateEdit();
-        connect(Date_edit,SIGNAL(editingFinished()),this,SLOT(on_cell_date_changed()));
+        //connect(Date_edit,SIGNAL(editingFinished()),this,SLOT(on_cell_date_changed()));
         Date_edit->setDate(QDate::currentDate());
         Date_edit->setCalendarPopup(true);
         Date_edit->installEventFilter(this);
