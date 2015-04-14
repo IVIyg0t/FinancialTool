@@ -21,11 +21,11 @@
 #include <QHeaderView>
 #include <QCalendarWidget>
 
-#include "graph.h"
 #include "createfirsttabaccount.h"
 #include "addtabaccount.h"
 #include "addtransaction.h"
 #include "account_delete.h"
+#include "accountrename.h"
 
 struct inputData{
     QString information;
@@ -47,10 +47,26 @@ class FinTool : public QMainWindow
 {
     Q_OBJECT
 
+
+private slots:
+    void on_tabWidget_currentChanged(int index);
+
+    void on_reports_addbankaccount_clicked();
+    void on_date_changed();
+
+    void on_actionRename_triggered();
+
 public slots:
     void on_action_add_bank_account_triggered();
     void on_action_add_transaction_triggered();
     void on_actionAccount_Deletion_triggered();
+
+    void on_menuBank_Account_hovered(QAction *);
+
+    void on_cell_date_changed();
+    void on_cell_item_changed(int, int);
+    void on_cell_item_doubleclicked(int, int);
+    void cellMenu(const QPoint &);
 
 public:
     explicit FinTool(QString username, QWidget *parent = 0);
@@ -310,17 +326,6 @@ public:
 
 
 
-public slots:
-    void on_cell_date_changed();
-    void on_cell_item_changed(int, int);
-    void on_cell_item_doubleclicked(int, int);
-    void cellMenu(const QPoint &);
-
-private slots:
-    void on_tabWidget_currentChanged(int index);
-
-    void on_reports_addbankaccount_clicked();
-    void on_date_changed();
 
 
 private:

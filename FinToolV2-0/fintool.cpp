@@ -60,7 +60,11 @@ FinTool::FinTool(QString username, QWidget *parent) :
     //Connect actions
     connect(ui->actionNew_bank_account,SIGNAL(triggered()),this,SLOT(on_action_add_bank_account_triggered()));
     connect(ui->actionNew_transaction,SIGNAL(triggered()), this, SLOT(on_action_add_transaction_triggered()));
-    connect(ui->actionAccount_Deletion,SIGNAL(triggered()), this, SLOT(on_actionAccount_Deletion_triggered()));
+    connect(ui->actionDelete,SIGNAL(triggered()), this, SLOT(on_actionAccount_Deletion_triggered()));
+
+    connect(ui->menuBank_Account,SIGNAL(hovered(QAction*)),this, SLOT(on_menuBank_Account_hovered(QAction *)));
+
+
 
     connect(ui->irfromdate,SIGNAL(editingFinished()),this,SLOT(on_date_changed()));
     connect(ui->irtodate,SIGNAL(editingFinished()),this,SLOT(on_date_changed()));
@@ -511,12 +515,15 @@ void FinTool::on_action_add_transaction_triggered(){
     }
 }
 
+void FinTool::on_menuBank_Account_hovered(QAction *act){
+    connect(ui->actionDelete,SIGNAL(triggered()),this,SLOT(on_actionAccount_Deletion_triggered()));
+}
+
 void FinTool::on_actionAccount_Deletion_triggered()
 {
     int i = 1;
     bool deletion = false;
     account_delete account;
-
 
     if(account.exec() == QDialog::Accepted)
     {
@@ -524,23 +531,35 @@ void FinTool::on_actionAccount_Deletion_triggered()
         {
             if(account.get_Account() == ui->tabWidget->tabText(i))
             {
+                ui->tabWidget->setCurrentIndex(i);
+                //QTableWidget *curTable = ui->tabWidget->widget(i)->findChild<QTableWidget *>();
+                //curTable->blockSignals(true);
+                //ui->actionAccount_Deletion->blockSignals(true);
                 delFile("users/"+this->Username+"/"+ui->tabWidget->tabText(i));
                 ui->tabWidget->removeTab(i);
                 deletion = true;
-                account.close();
+                //account.close();
+
+                //curTable->blockSignals(false);
             }
         }
-
         if(deletion == false)
-            check.show();
+           check.exec();
     }
 
-    deletion = false;
+    //deletion = false;
+    //ui->actionAccount_Deletion->blockSignals(false);
+
+    disconnect(ui->actionDelete,SIGNAL(triggered()),this,SLOT(on_actionAccount_Deletion_triggered()));
+
+    //ui->actionAccount_Deletion->blockSignals(true);
 
 }
 
 void FinTool::on_tabWidget_currentChanged(int index)
 {
+    //ui->actionAccount_Deletion->blockSignals(false);
+    //connect(ui->actionAccount_Deletion,SIGNAL(triggered()),this,SLOT(on_actionAccount_Deletion_triggered()));
     if(index > 0){
         QTableWidget *table = ui->tabWidget->widget(index)->findChild<QTableWidget *>();
         calcBalanceBottomTop(table);
@@ -727,3 +746,14 @@ void FinTool::importTables(QString username){
 
 //End Functions for importing existing user data
 
+
+void FinTool::on_actionRename_triggered()
+{
+    accountRename newName;
+    if(newName.exec() == QDialog::Accepted){
+        QTableWidget *curTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
+        delFile("users/"+this->Username+"/"+ui->tabWidget->tabText(ui->tabWidget->currentIndex()));
+        ui->tabWidget->setTabText(ui->tabWidget->currentIndex(),newName.getName());
+        rewriteTableToFile(curTable);
+    }
+}

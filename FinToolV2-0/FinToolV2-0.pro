@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     createfirsttabaccount.cpp \
     addtabaccount.cpp \
     addtransaction.cpp \
-    account_delete.cpp
+    account_delete.cpp \
+    accountrename.cpp
 
 HEADERS  += fintool.h \
     login.h \
@@ -27,7 +28,8 @@ HEADERS  += fintool.h \
     createfirsttabaccount.h \
     addtabaccount.h \
     addtransaction.h \
-    account_delete.h
+    account_delete.h \
+    accountrename.h
 
 FORMS    += fintool.ui \
     login.ui \
@@ -35,4 +37,5 @@ FORMS    += fintool.ui \
     createfirsttabaccount.ui \
     addtabaccount.ui \
     addtransaction.ui \
-    account_delete.ui
+    account_delete.ui \
+    accountrename.ui
