@@ -25,6 +25,7 @@
 #include "createfirsttabaccount.h"
 #include "addtabaccount.h"
 #include "addtransaction.h"
+#include "account_delete.h"
 
 struct inputData{
     QString information;
@@ -49,6 +50,7 @@ class FinTool : public QMainWindow
 public slots:
     void on_action_add_bank_account_triggered();
     void on_action_add_transaction_triggered();
+    void on_actionAccount_Deletion_triggered();
 
 public:
     explicit FinTool(QString username, QWidget *parent = 0);
@@ -330,6 +332,7 @@ private:
     int curComboColumn;
     inputData newTransactionData;
     Ui::FinTool *ui;
+    QMessageBox check;
 };
 
 #endif // FINTOOL_H

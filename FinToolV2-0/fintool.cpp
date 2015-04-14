@@ -9,6 +9,12 @@ FinTool::FinTool(QString username, QWidget *parent) :
     setWindowTitle("Financial Tool V2.0");
     this->Username = username;
 
+    //Qmessagebox for the account deletion
+
+    check.addButton("Ok",QMessageBox::AcceptRole);
+    check.setWindowTitle("Error: Account Deletion");
+    check.setText("Account name not found.");
+
 
 
     // Set to and from dates to today's date
@@ -54,6 +60,7 @@ FinTool::FinTool(QString username, QWidget *parent) :
     //Connect actions
     connect(ui->actionNew_bank_account,SIGNAL(triggered()),this,SLOT(on_action_add_bank_account_triggered()));
     connect(ui->actionNew_transaction,SIGNAL(triggered()), this, SLOT(on_action_add_transaction_triggered()));
+    connect(ui->actionAccount_Deletion,SIGNAL(triggered()), this, SLOT(on_actionAccount_Deletion_triggered()));
 
     connect(ui->irfromdate,SIGNAL(editingFinished()),this,SLOT(on_date_changed()));
     connect(ui->irtodate,SIGNAL(editingFinished()),this,SLOT(on_date_changed()));
@@ -275,23 +282,26 @@ bool FinTool::eventFilter(QObject *target, QEvent *event){
         }
     }
 
-    else if(this->curComboColumn == 0){
-        QString curDate;
-        QModelIndex ind = curTable->model()->index(this->curComboRow,0);
-        QDateEdit *curDateEdit = qobject_cast<QDateEdit *>(curTable->indexWidget(ind));
-        if(target == curDateEdit){
-            if(event->type() == QEvent::KeyPress){
-                QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-                if((keyEvent->key() == Qt::Key_Enter) || (keyEvent->key() == Qt::Key_Return)){
-                    curDate = curDateEdit->date().toString("M/d/yyyy");
-                    curTable->removeCellWidget(this->curComboRow,0);
-                    curTable->setItem(this->curComboRow,0, new QTableWidgetItem(curDate));
-                    //editTransactionFileAmount(curDate,curTable->rowCount(),this->curComboRow,this->curComboColumn);
-                    rewriteTableToFile(curTable);
-                }
-            }
-        }
-    }
+//    else if(this->curComboColumn == 0){
+//        QString curDate;
+//        QModelIndex ind = curTable->model()->index(this->curComboRow,0);
+//        QDateEdit *curDateEdit = qobject_cast<QDateEdit *>(curTable->indexWidget(ind));
+//        if(target == curDateEdit)
+//        {
+//            if(event->type() == QEvent::KeyPress)
+//            {
+//                QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+//                if((keyEvent->key() == Qt::Key_Enter) || (keyEvent->key() == Qt::Key_Return))
+//                {
+//                    curDate = curDateEdit->date().toString("M/d/yyyy");
+//                    curTable->removeCellWidget(this->curComboRow,0);
+//                    curTable->setItem(this->curComboRow,0, new QTableWidgetItem(curDate));
+//                    //editTransactionFileAmount(curDate,curTable->rowCount(),this->curComboRow,this->curComboColumn);
+//                    rewriteTableToFile(curTable);
+//                }
+//            }
+//        }
+//    }
 
     return QMainWindow::eventFilter(target,event);
 }
@@ -499,6 +509,34 @@ void FinTool::on_action_add_transaction_triggered(){
             }
         }
     }
+}
+
+void FinTool::on_actionAccount_Deletion_triggered()
+{
+    int i = 1;
+    bool deletion = false;
+    account_delete account;
+
+
+    if(account.exec() == QDialog::Accepted)
+    {
+        for(i = 1; i < ui->tabWidget->count(); i++)
+        {
+            if(account.get_Account() == ui->tabWidget->tabText(i))
+            {
+                delFile("users/"+this->Username+"/"+ui->tabWidget->tabText(i));
+                ui->tabWidget->removeTab(i);
+                deletion = true;
+                account.close();
+            }
+        }
+
+        if(deletion == false)
+            check.show();
+    }
+
+    deletion = false;
+
 }
 
 void FinTool::on_tabWidget_currentChanged(int index)

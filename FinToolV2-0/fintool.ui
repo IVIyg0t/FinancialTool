@@ -231,7 +231,7 @@
      <x>0</x>
      <y>0</y>
      <width>1074</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuAdd">
@@ -241,7 +241,14 @@
     <addaction name="actionNew_transaction"/>
     <addaction name="actionNew_bank_account"/>
    </widget>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>Settings</string>
+    </property>
+    <addaction name="actionAccount_Deletion"/>
+   </widget>
    <addaction name="menuAdd"/>
+   <addaction name="menuSettings"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionNew_transaction">
@@ -252,6 +259,11 @@
   <action name="actionNew_bank_account">
    <property name="text">
     <string>New bank account</string>
+   </property>
+  </action>
+  <action name="actionAccount_Deletion">
+   <property name="text">
+    <string>Account Deletion</string>
    </property>
   </action>
  </widget>

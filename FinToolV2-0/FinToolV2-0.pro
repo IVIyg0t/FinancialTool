@@ -18,18 +18,21 @@ SOURCES += main.cpp\
     createaccount.cpp \
     createfirsttabaccount.cpp \
     addtabaccount.cpp \
-    addtransaction.cpp
+    addtransaction.cpp \
+    account_delete.cpp
 
 HEADERS  += fintool.h \
     login.h \
     createaccount.h \
     createfirsttabaccount.h \
     addtabaccount.h \
-    addtransaction.h
+    addtransaction.h \
+    account_delete.h
 
 FORMS    += fintool.ui \
     login.ui \
     createaccount.ui \
     createfirsttabaccount.ui \
     addtabaccount.ui \
-    addtransaction.ui
+    addtransaction.ui \
+    account_delete.ui
