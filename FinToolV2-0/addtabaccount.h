@@ -27,12 +27,27 @@ public:
     QString getAccountName();
     QString getAccountType();
 
+    bool setState(bool state){
+        this->state = state;
+        return this->state;
+    }
+
+    bool isGood(){
+        return this->state;
+    }
+
+    void setTabNames(QStringList names){
+        this->tabNames = names;
+    }
+
 private slots:
     void on_pushButton_clicked();
 
     void on_pushButton_2_clicked();
 
 private:
+    bool state;
+    QStringList tabNames;
     Ui::addTabAccount *ui;
     QMessageBox string_not_found;
 };

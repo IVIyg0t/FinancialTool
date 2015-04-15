@@ -30,14 +30,23 @@ void addTabAccount::on_pushButton_clicked()
 {
     if(ui->lineEdit->text() == NULL)
         string_not_found.show();
-    else
-    {
-        this->accept();
-        this->close();
+
+    bool foo = true;
+    foreach(QString N, this->tabNames){
+        if(N == this->getAccountName()+ " - " + this->getAccountType()){
+            QMessageBox ErrMsg;
+            ErrMsg.setText("Tisk tisk.. The Account your trying to create already exists!");
+            ErrMsg.exec();
+            foo = false;
+        }
     }
+    this->setState(foo);
+
+    if(this->isGood())
+        this->accept();
 }
 
 void addTabAccount::on_pushButton_2_clicked()
 {
-    this->close();
+    this->reject();
 }

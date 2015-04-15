@@ -212,7 +212,7 @@ void FinTool::genIncomeReport(){
 // Function to generate expense reports
 void FinTool::genSpendingAnalysisReport(){
     ui->spendinganalysis->setRowCount(0);
-
+    bool percentages = false;
     QFile file("users/"+this->Username+"/categories");
     file.open(QIODevice::ReadOnly);
     QTextStream in(&file);
@@ -232,6 +232,7 @@ void FinTool::genSpendingAnalysisReport(){
             for(int j = 0; j < curTable->rowCount(); j++){
                 if((curTable->item(j, 1)->text() == "Expense") && (curTable->item(j, 2)->text() == cat)){
                    buf += curTable->item(j,4)->text().toDouble();
+                   percentages = true;
                 }
             }
 
@@ -259,8 +260,10 @@ void FinTool::genSpendingAnalysisReport(){
     ui->spendinganalysis->item(ui->spendinganalysis->rowCount()-1,0)->setFont(font);
     ui->spendinganalysis->item(ui->spendinganalysis->rowCount()-1,1)->setFont(font);
 
-    for(int j = 0; j < ui->spendinganalysis->rowCount()-1; j++){
-        ui->spendinganalysis->setItem(j,2, new QTableWidgetItem(QString::number(ui->spendinganalysis->item(j,1)->text().toInt()/(total*-1)*100,'f',0)+"%"));
+    if(percentages == true){
+        for(int j = 0; j < ui->spendinganalysis->rowCount()-1; j++){
+            ui->spendinganalysis->setItem(j,2, new QTableWidgetItem(QString::number(ui->spendinganalysis->item(j,1)->text().toInt()/(total*-1)*100,'f',0)+"%"));
+        }
     }
 }
 
@@ -467,6 +470,14 @@ void FinTool::on_reports_addbankaccount_clicked()
 
 void FinTool::on_action_add_bank_account_triggered(){
     addTabAccount newtab;
+
+    QStringList TNN;
+    for(int i = 1; i < ui->tabWidget->count(); i++){
+        TNN.append(ui->tabWidget->tabText(i));
+    }
+    newtab.setTabNames(TNN);
+
+
     if(newtab.exec()== QDialog::Accepted){
         QTableWidget *newTable = createTable();
         formatTable(newTable);
@@ -535,28 +546,16 @@ void FinTool::on_actionAccount_Deletion_triggered()
             if(account.get_Account() == ui->tabWidget->tabText(i))
             {
                 ui->tabWidget->setCurrentIndex(i);
-                //QTableWidget *curTable = ui->tabWidget->widget(i)->findChild<QTableWidget *>();
-                //curTable->blockSignals(true);
-                //ui->actionAccount_Deletion->blockSignals(true);
                 delFile("users/"+this->Username+"/"+ui->tabWidget->tabText(i));
                 ui->tabWidget->removeTab(i);
                 deletion = true;
-                //account.close();
 
-                //curTable->blockSignals(false);
             }
         }
         if(deletion == false)
            check.exec();
     }
-
-    //deletion = false;
-    //ui->actionAccount_Deletion->blockSignals(false);
-
     disconnect(ui->actionDelete,SIGNAL(triggered()),this,SLOT(on_actionAccount_Deletion_triggered()));
-
-    //ui->actionAccount_Deletion->blockSignals(true);
-
 }
 
 void FinTool::on_tabWidget_currentChanged(int index)
@@ -753,6 +752,14 @@ void FinTool::importTables(QString username){
 void FinTool::on_actionRename_triggered()
 {
     accountRename newName;
+    QStringList TNN;
+    for(int i = 1; i < ui->tabWidget->count(); i++){
+        if(ui->tabWidget->currentIndex() != i){
+            TNN.append(ui->tabWidget->tabText(i));
+        }
+    }
+
+    newName.setTabNames(TNN);
     if(newName.exec() == QDialog::Accepted){
         QTableWidget *curTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
         delFile("users/"+this->Username+"/"+ui->tabWidget->tabText(ui->tabWidget->currentIndex()));
