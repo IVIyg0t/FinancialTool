@@ -764,17 +764,26 @@ void FinTool::on_actionRename_triggered()
 {
     accountRename newName;
     QStringList TNN;
-    for(int i = 1; i < ui->tabWidget->count(); i++){
-        if(ui->tabWidget->currentIndex() != i){
-            TNN.append(ui->tabWidget->tabText(i));
+    if(!ui->tabWidget->tabText(ui->tabWidget->currentIndex()).contains("reports",Qt::CaseInsensitive))
+    {
+        for(int i = 1; i < ui->tabWidget->count(); i++){
+            if(ui->tabWidget->currentIndex() != i){
+                TNN.append(ui->tabWidget->tabText(i));
+            }
+        }
+
+        newName.setTabNames(TNN);
+        if(newName.exec() == QDialog::Accepted){
+            QTableWidget *curTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
+            delFile("users/"+this->Username+"/"+ui->tabWidget->tabText(ui->tabWidget->currentIndex()));
+            ui->tabWidget->setTabText(ui->tabWidget->currentIndex(),newName.getName());
+            rewriteTableToFile(curTable);
         }
     }
-
-    newName.setTabNames(TNN);
-    if(newName.exec() == QDialog::Accepted){
-        QTableWidget *curTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
-        delFile("users/"+this->Username+"/"+ui->tabWidget->tabText(ui->tabWidget->currentIndex()));
-        ui->tabWidget->setTabText(ui->tabWidget->currentIndex(),newName.getName());
-        rewriteTableToFile(curTable);
+    else
+    {
+        QMessageBox ErrMsg;
+        ErrMsg.setText("You can't rename the \"Reports\" tab!");
+        ErrMsg.exec();
     }
 }
