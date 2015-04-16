@@ -163,8 +163,6 @@ Makefile: ..\FinToolV2-0\FinToolV2-0.pro C:\Qt\5.4\msvc2013_64\mkspecs\win32-msv
 		C:\Qt\5.4\msvc2013_64\mkspecs\modules\qt_lib_webkitwidgets_private.pri \
 		C:\Qt\5.4\msvc2013_64\mkspecs\modules\qt_lib_websockets.pri \
 		C:\Qt\5.4\msvc2013_64\mkspecs\modules\qt_lib_websockets_private.pri \
-		C:\Qt\5.4\msvc2013_64\mkspecs\modules\qt_lib_webview.pri \
-		C:\Qt\5.4\msvc2013_64\mkspecs\modules\qt_lib_webview_private.pri \
 		C:\Qt\5.4\msvc2013_64\mkspecs\modules\qt_lib_widgets.pri \
 		C:\Qt\5.4\msvc2013_64\mkspecs\modules\qt_lib_widgets_private.pri \
 		C:\Qt\5.4\msvc2013_64\mkspecs\modules\qt_lib_winextras.pri \
@@ -294,8 +292,6 @@ C:\Qt\5.4\msvc2013_64\mkspecs\modules\qt_lib_webkitwidgets.pri:
 C:\Qt\5.4\msvc2013_64\mkspecs\modules\qt_lib_webkitwidgets_private.pri:
 C:\Qt\5.4\msvc2013_64\mkspecs\modules\qt_lib_websockets.pri:
 C:\Qt\5.4\msvc2013_64\mkspecs\modules\qt_lib_websockets_private.pri:
-C:\Qt\5.4\msvc2013_64\mkspecs\modules\qt_lib_webview.pri:
-C:\Qt\5.4\msvc2013_64\mkspecs\modules\qt_lib_webview_private.pri:
 C:\Qt\5.4\msvc2013_64\mkspecs\modules\qt_lib_widgets.pri:
 C:\Qt\5.4\msvc2013_64\mkspecs\modules\qt_lib_widgets_private.pri:
 C:\Qt\5.4\msvc2013_64\mkspecs\modules\qt_lib_winextras.pri:

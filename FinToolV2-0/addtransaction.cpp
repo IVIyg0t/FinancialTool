@@ -113,7 +113,7 @@ void addTransaction::on_pushButton_clicked()
     QStringList Missing_Fields;
 
     if(ui->Amount->value() == 0.0)
-        Missing_Fields << "Ammount";
+        Missing_Fields << "Amount";
     if(ui->Category->currentText() == " ")
         Missing_Fields << "Category";
     if(ui->TransactionType->currentText() == " ")

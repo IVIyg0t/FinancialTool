@@ -33,9 +33,18 @@ void addTabAccount::on_pushButton_clicked()
 
     bool foo = true;
     foreach(QString N, this->tabNames){
-        if(N == this->getAccountName()+ " - " + this->getAccountType()){
+        if(N == this->getAccountName()+ " - " + this->getAccountType())
+        {
             QMessageBox ErrMsg;
-            ErrMsg.setText("Tisk tisk.. The Account your trying to create already exists!");
+            ErrMsg.setText("The account your trying to create already exists!");
+            ErrMsg.exec();
+            foo = false;
+        }
+        //Makes any case varaiation of the word "reports" protected and unuseable for an account tab.
+        if(this->getAccountName().contains("Reports",Qt::CaseInsensitive))
+        {
+            QMessageBox ErrMsg;
+            ErrMsg.setText("Reports is a protected name and cannot be used for an account name!");
             ErrMsg.exec();
             foo = false;
         }
