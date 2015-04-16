@@ -506,26 +506,37 @@ void FinTool::on_action_add_bank_account_triggered(){
 
 void FinTool::on_action_add_transaction_triggered(){
     addTransaction newTransaction(Username);
-    if(newTransaction.exec() == QDialog::Accepted){
 
-        this->newTransactionData.Amount = newTransaction.getAmount();
-        this->newTransactionData.Category = newTransaction.getCategory();
-        this->newTransactionData.Date = newTransaction.getDate();
-        this->newTransactionData.information = newTransaction.getAddInfo();
-        this->newTransactionData.transType = newTransaction.getTransactionType();
-        this->newTransactionData.success = true;
-        convertAmount();
+    if(ui->tabWidget->tabText(ui->tabWidget->currentIndex()) != "Reports")
+    {
+        if(newTransaction.exec() == QDialog::Accepted)
+        {
 
-        if(this->newTransactionData.success == true){
-            if(ui->tabWidget->count() > 1){
-                QTableWidget *curTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
-                curTable->blockSignals(true);
-                setTransactionToCurrentTable(curTable);
-                curTable->blockSignals(false);
-                //writeTransaction(this->newTransactionData,this->Username);
-                rewriteTableToFile(curTable);
+            this->newTransactionData.Amount = newTransaction.getAmount();
+            this->newTransactionData.Category = newTransaction.getCategory();
+            this->newTransactionData.Date = newTransaction.getDate();
+            this->newTransactionData.information = newTransaction.getAddInfo();
+            this->newTransactionData.transType = newTransaction.getTransactionType();
+            this->newTransactionData.success = true;
+            convertAmount();
+
+            if(this->newTransactionData.success == true){
+                if(ui->tabWidget->count() > 1){
+                    QTableWidget *curTable = ui->tabWidget->widget(ui->tabWidget->currentIndex())->findChild<QTableWidget *>();
+                    curTable->blockSignals(true);
+                    setTransactionToCurrentTable(curTable);
+                    curTable->blockSignals(false);
+                    //writeTransaction(this->newTransactionData,this->Username);
+                    rewriteTableToFile(curTable);
+                }
             }
         }
+    }
+    else
+    {
+        QMessageBox ErrMsg;
+        ErrMsg.setText("You can't add a transaction to the reports tab. Please select the desired account tab.");
+        ErrMsg.exec();
     }
 }
 
